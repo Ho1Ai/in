@@ -1,8 +1,9 @@
+#include <stdint.h>
 #ifndef EDITOR
 #define EDITOR
 
-#define true 1
-#define false 0
+//#define true 1
+//#define false 0
 typedef struct {
 	int line;
 	int linePosition;
@@ -10,7 +11,7 @@ typedef struct {
 
 typedef struct {
 	char* filename;
-	char** flc; //flt - File Lines Content
+	char** flc; //flc - File Lines Content
 	int edited;
 } fileState;
 
@@ -18,11 +19,11 @@ void cleanScreen();
 
 void moveCursor(int direction);
 
-void writeFile();
+void writeFile(fileState newFile);
 
+uint8_t input(char* input);
 
-
-void initEditor();
+int initEditor();
 
 #endif
 
