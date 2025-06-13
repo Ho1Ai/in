@@ -10,3 +10,4 @@ In (in <- insert) is a small and lightweight text editor, which I wrote just to 
 `h` - help. Output list of commands  
 If you are trying to enter the command that does not exist, application will output `not a command. Write "h" to show list of supported commands`  
 this list is not ready yet, but it is that minimum, which this application needs  
+(P.S. inspired by ed ;) )
