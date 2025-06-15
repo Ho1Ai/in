@@ -21,30 +21,36 @@ void cleanScreen() {
 
 }
 
-void moveCursor(int direction) {}
+uint8_t command__out(fileState* workspace_file, int from, int through) {}
 
-void writeFile(fileState newFile) {
+uint8_t writeFile(fileState* newFile) {
 
 }
 
-uint8_t input(char input){
+uint8_t commandInput(fileState* file, char input){
 	if(input == 'q'){
 		printf("You wrote q, so we have to exit. Bye!\n");
 		return QUIT_CODE;
+	}
+	
+	if (input == 'w') {
+		printf("you wrote w");
+		int write_code = writeFile
+		return 
 	} 
 	
 	return 100;
 }
 
 int initEditor(){
-	printf("The editor has been started succesfully");
+	printf("The editor has been started succesfully\n");
 
 	editorState inState;
 	fileState openFileState;
 
 	while(1){
-		char inp = getchar();
-		uint8_t inputStatus = input(inp);
+		char inp = getc(stdin);
+		uint8_t inputStatus = commandInput(inp);
 		if(inputStatus != 100) {
 			break;
 		}

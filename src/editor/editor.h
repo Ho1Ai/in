@@ -17,11 +17,13 @@ typedef struct {
 
 void cleanScreen();
 
-void moveCursor(int direction);
+uint8_t command__out(fileState* workspace_file, int from, int through);
 
-void writeFile(fileState newFile);
+uint8_t writeFile(fileState newFile);
 
-uint8_t input(char* input);
+uint8_t commandInput(char* input);
+
+
 
 int initEditor();
 
