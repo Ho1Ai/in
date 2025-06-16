@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <stdlib.h>
 #ifndef EDITOR
 #define EDITOR
 
@@ -19,11 +20,17 @@ void cleanScreen();
 
 uint8_t command__out(fileState* workspace_file, int from, int through);
 
-uint8_t writeFile(fileState newFile);
+uint8_t command__rma(fileState* workspace_file, int line, int from);
 
-uint8_t commandInput(char* input);
+uint8_t command__ins(fileState* workspace_file, int line, int position); // then it will ask for text, which you wanna insert. Making comments just not to forget it
 
+uint8_t command_rm(fileState* workspace_file, int line, int from, int through);
 
+uint8_t command_w(fileState* workspace_file);
+
+uint8_t command_h(fileState* workspace_file);
+
+uint8_t commandInput(fileState* workspace_file, char* input);
 
 int initEditor();
 
