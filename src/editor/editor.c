@@ -25,11 +25,15 @@ typedef struct {
 } fileState;
 
 void cleanScreen() {
-
+	system("clear");
 }
 
 uint8_t command__out(fileState* workspace_file, int from, int through) {
 
+}
+
+uint8_t command__c() {
+	cleanScreen();
 }
 
 uint8_t command__rma(fileState* workspace_file, int line, int from) {
@@ -52,7 +56,9 @@ uint8_t command__h() {
 	printf("This list of commands shows small list of commands and some things, which these commands need, but doesn't show more info, than this, because else this list won't fit viewport on some machines. In order to see better help menu, write mh and visit github or start in-mh application\n\nlist:\n\nh - show this menu\n\nw - write file\n\nq - quit\n\nrm - remove area.\t{after writting this command and pressing enter} [line] [start position] [end position]\nrma - remove after.\t{after writting this command and pressing enter} [line] [start position]\n\nins - insert.\t{after pressing enter} [line] [position]\t{after pressing enter} [line, which you wanna insert]\n");
 }
 
-uint8_t command__mh() {}
+uint8_t command__mh() {
+	printf("Not ready yet... You can quit in text editor and start in-mh in order to see more info about application");
+}
 
 uint8_t commandInput(fileState* workspace_file, char* input){
 	uint8_t state = 0;
@@ -96,6 +102,11 @@ uint8_t commandInput(fileState* workspace_file, char* input){
 		state = 1;
 	}
 
+	if (strcmp(input, "c")==0) {
+		command__c();
+		state = 1;
+	}
+
 	if(state!=1) {
 		printf("write h in order to see list of supported commands\n");
 	}
@@ -112,7 +123,10 @@ int initEditor(){
 	while(1){
 		char inp[128];
 		//printf("wrote something");
-		fgets(inp, 128, stdin);
+		if(fgets(inp, 128, stdin)==NULL){
+			printf("^D\n");
+			return 0;
+		};
 		//printf("wrote something");
 		inp[strcspn(inp,"\n")]=0;
 		uint8_t inputStatus = commandInput(open_file_state, inp);
