@@ -57,7 +57,7 @@ uint8_t command__h() {
 }
 
 uint8_t command__mh() {
-	printf("Not ready yet... You can quit in text editor and start in-mh in order to see more info about application");
+	printf("Not ready yet... You can quit in text editor and start in-mh in order to see more info about application\n");
 }
 
 uint8_t commandInput(fileState* workspace_file, char* input){
@@ -104,6 +104,11 @@ uint8_t commandInput(fileState* workspace_file, char* input){
 
 	if (strcmp(input, "c")==0) {
 		command__c();
+		state = 1;
+	}
+
+	if (strcmp(input, "mh")==0) {
+		command__mh();
 		state = 1;
 	}
 
