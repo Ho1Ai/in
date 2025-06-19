@@ -37,7 +37,7 @@ uint8_t command__c() {
 }
 
 uint8_t command__rma(fileState* workspace_file, int line, int from) {
-
+	workspace_file->flc[line][from] = '\0';
 }
 
 uint8_t command__ins(fileState* workspace_file, int line, int position) {
