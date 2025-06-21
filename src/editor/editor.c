@@ -13,6 +13,8 @@
 //#define REMOVE_CODE 105 //both: rma and rm
 //#define HELP_OUTPUT_CODE 106
 
+//how to write Hello, World in Assembly
+
 typedef struct {
 	int line;
 	int linePosition;
@@ -57,7 +59,7 @@ uint8_t command__ins(fileState* workspace_file, int line, int position) {
 }
 
 uint8_t command__rm(fileState* workspace_file, int line, int from, int through) {
-
+	printf("there is nothing there!\n");
 }
 
 uint8_t command__w(fileState* workspace_file) {
@@ -75,42 +77,46 @@ uint8_t command__mh() {
 uint8_t commandInput(fileState* workspace_file, char* input){
 	uint8_t state = 0;
 	if(strcmp(input, "q")==0){
-		//printf("You wrote q, so we have to exit. Bye!\n");
 		printf("Bye!\n");
 		return QUIT_CODE;
 	}
-	
-	//printf("%d", strcmp(input, "q"));
 
 	if (strcmp(input, "w")==0) {
-		//printf("you wrote w\n");
 		state = 1;
-		//int write_code = writeFile(file)
 	} 
 
 	if (strcmp(input, "h")==0) {
-		//printf("you wrote h\n");
 		command__h();
 		state = 1;
 	}
 
 	if (strcmp(input, "ins")==0) {
-		//printf("you wrote ins\n");
 		state = 1;
 	}
 
 	if (strcmp(input, "rma")==0){
-		//printf("you wrote rma\n");
 		state = 1;
 	}
 
 	if (strcmp(input, "rm")==0) {
-		//printf("you wrote rm\n");
+		state=1;
+		printf("Give positional arguments: line number, start position, last position\n");
+		int line_num, start_pos, end_pos;
+		puts("line number: ");
+		scanf("%d", &line_num);
+		puts("start position: ");
+		scanf("%d", &start_pos);
+		puts("end position");
+		scanf("%d", &end_pos);
+		command__rm(workspace_file, line_num, start_pos, end_pos); //still not ready
+		
+		// BUG: it doesn't set state to 1... To be fixed!
 		state = 1;
+		//printf("%d", state);
 	}
 
 	if (strcmp(input, "out")==0){
-		//printf("you wrote out\n");
+		//command__out(); // still not ready
 		state = 1;
 	}
 
@@ -125,19 +131,21 @@ uint8_t commandInput(fileState* workspace_file, char* input){
 	}
 
 	if(state!=1) {
+		//printf("%d\n", state); // why does it think that it is still 0, but previously it has shown this stuff and it was 1?.. to be fixed! // well, now I see that this stuff works somehow with main while loop
 		printf("write h in order to see list of supported commands\n");
 	}
 
 	return 100;
 }
 
-int initEditor(){
+int initEditor(char* filename){
 	printf("The editor has been started succesfully\n");
 
 	editorState inState;
 	fileState* open_file_state = (fileState*)malloc(sizeof(fileState));
-
+	
 	while(1){
+		printf("> ");
 		char inp[128];
 		//printf("wrote something");
 		if(fgets(inp, 128, stdin)==NULL){
