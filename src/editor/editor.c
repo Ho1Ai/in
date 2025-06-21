@@ -29,7 +29,19 @@ void cleanScreen() {
 }
 
 uint8_t command__out(fileState* workspace_file, int from, int through) {
-
+	int startpos, current, endpos;
+	if (from == -1 || through == -1) {
+		current = 0;
+		while (workspace_file->flc[current][0]!='\0'){
+			printf("%s", workspace_file->flc[current]);
+		}
+	}else{
+		current = startpos;
+		while (current<endpos) {
+		printf("%s", workspace_file->flc[current]);
+		current++;
+	}}
+	return 0;
 }
 
 uint8_t command__c() {
