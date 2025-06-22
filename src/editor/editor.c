@@ -139,8 +139,18 @@ uint8_t commandInput(fileState* workspace_file, char* input){
 }
 
 int initEditor(char* filename){
+	if(!filename){
+		printf("Couldn't receive filename...\n");
+		return 0;
+	}
 	printf("The editor has been started succesfully\n");
-
+	int file_existence = 1;
+	FILE* this_file = fopen(filename,"r");
+	if(!this_file){
+		printf("the file does not exist =(\nCreating new file\n");
+		FILE* create_file = fopen(filename, "w");
+		file_existence = 0;
+	}
 	editorState inState;
 	fileState* open_file_state = (fileState*)malloc(sizeof(fileState));
 	
@@ -150,6 +160,8 @@ int initEditor(char* filename){
 		//printf("wrote something");
 		if(fgets(inp, 128, stdin)==NULL){
 			printf("^D\n");
+			free(open_file_state);
+			fclose(this_file);
 			return 0;
 		};
 		//printf("wrote something");
@@ -159,4 +171,9 @@ int initEditor(char* filename){
 			break;
 		}
 	}
+
+	if (file_existence == 1) {
+		fclose(this_file);
+	}
+	free(open_file_state);
 }
