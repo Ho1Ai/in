@@ -34,12 +34,12 @@ uint8_t command__out(fileState* workspace_file, int from, int through) {
 	int startpos, current, endpos;
 	if (from == -1 || through == -1) {
 		current = 0;
-		while (workspace_file->flc[current][0]!='\0'){
+		while (workspace_file->flc[current]){
 			printf("%s", workspace_file->flc[current]);
 		}
 	}else{
 		current = startpos;
-		while (current<endpos) {
+		while (current<endpos && workspace_file->flc[current]) {
 		printf("%s", workspace_file->flc[current]);
 		current++;
 	}}
@@ -138,6 +138,8 @@ uint8_t commandInput(fileState* workspace_file, char* input){
 	return 100;
 }
 
+int inInner__FILE_CONTENT_GETTER(fileState* workspace_file);
+
 int initEditor(char* filename){
 	if(!filename){
 		printf("Couldn't receive filename...\n");
@@ -147,13 +149,15 @@ int initEditor(char* filename){
 	int file_existence = 1;
 	FILE* this_file = fopen(filename,"r");
 	if(!this_file){
-		printf("the file does not exist =(\nCreating new file\n");
+		printf("No such file. Creating new...\n");
 		FILE* create_file = fopen(filename, "w");
 		file_existence = 0;
 	}
 	editorState inState;
-	fileState* open_file_state = (fileState*)malloc(sizeof(fileState));
-	
+	fileState* open_file_state = (fileState*)malloc(sizeof(fileState)); // called like this only here, because everywhere else I use workspace_file instead
+	open_file_state->filename = filename;
+	//printf("%s", open_file_state->filename); // just a debug attempt
+	int filewrite_test = inInner__FILE_CONTENT_GETTER(open_file_state);
 	while(1){
 		printf("> ");
 		char inp[128];
@@ -176,4 +180,8 @@ int initEditor(char* filename){
 		fclose(this_file);
 	}
 	free(open_file_state);
+}
+
+int inInner__FILE_CONTENT_GETTER(fileState* workspace_file) {
+	//printf("Nothing great\n");
 }
