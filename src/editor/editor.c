@@ -140,6 +140,8 @@ uint8_t commandInput(fileState* workspace_file, char* input){
 
 int inInner__FILE_CONTENT_GETTER(fileState* workspace_file);
 
+void freeMem (fileState* workspace_file);
+
 int initEditor(char* filename){
 	if(!filename){
 		printf("Couldn't receive filename...\n");
@@ -175,7 +177,9 @@ int initEditor(char* filename){
 			break;
 		}
 	}
-
+	
+	freeMem(open_file_state);
+	
 	if (file_existence == 1) {
 		fclose(this_file);
 	}
@@ -184,4 +188,26 @@ int initEditor(char* filename){
 
 int inInner__FILE_CONTENT_GETTER(fileState* workspace_file) {
 	//printf("Nothing great\n");
+	workspace_file->flc = malloc(sizeof(char*));
+	
+	FILE* input_file = fopen(workspace_file->filename, "r");
+	printf("Great!\n");
+	char fileInputBuffer;
+	while((fileInputBuffer = fgetc(input_file))!=EOF){
+		if(fileInputBuffer!='\n'){
+			printf("this one is - - - %c\n", fileInputBuffer);
+		} else {
+			printf("there is a \\n in a file\n");
+		}
+	}
+}
+
+void freeMem (fileState* workspace_file) {
+	int chk = 0;
+	while(workspace_file->flc[chk]) {
+		free(workspace_file->flc[chk]);
+		printf("Cleaning memory\n");
+	}
+	free(workspace_file->flc);
+	printf("Cleaning memory, but fully\n");
 }
