@@ -32,15 +32,18 @@ void cleanScreen() {
 
 uint8_t command__out(fileState* workspace_file, int from, int through) {
 	int startpos, current, endpos;
+	startpos = from;
+	endpos = through+1;
 	if (from == -1 || through == -1) {
 		current = 0;
 		while (workspace_file->flc[current]){
-			printf("%s", workspace_file->flc[current]);
+			printf("%d.  %s\n", current, workspace_file->flc[current]);
+			current++;
 		}
 	}else{
 		current = startpos;
 		while (current<endpos && workspace_file->flc[current]) {
-		printf("%s", workspace_file->flc[current]);
+		printf("%d.  %s\n", current, workspace_file->flc[current]);
 		current++;
 	}}
 	return 0;
@@ -74,6 +77,14 @@ uint8_t command__mh() {
 	printf("Not ready yet... You can quit in text editor and start in-mh in order to see more info about application\n");
 }
 
+void debug_commands__draw(fileState* workspace_file){
+	int x=0;
+	while(workspace_file->flc[x]){
+		printf("%s\n", workspace_file->flc[x]);
+		x++;
+	}
+}
+
 uint8_t commandInput(fileState* workspace_file, char* input){
 	uint8_t state = 0;
 	if(strcmp(input, "q")==0){
@@ -102,12 +113,16 @@ uint8_t commandInput(fileState* workspace_file, char* input){
 		state=1;
 		printf("Give positional arguments: line number, start position, last position\n");
 		int line_num, start_pos, end_pos;
+		char ch;
 		puts("line number: ");
 		scanf("%d", &line_num);
+		while((ch=getchar()) != '\n' && ch != EOF);
 		puts("start position: ");
 		scanf("%d", &start_pos);
+		while((ch=getchar()) != '\n' && ch != EOF);
 		puts("end position");
 		scanf("%d", &end_pos);
+		while((ch=getchar()) != '\n' && ch != EOF);
 		command__rm(workspace_file, line_num, start_pos, end_pos); //still not ready
 		
 		// BUG: it doesn't set state to 1... To be fixed!
@@ -116,7 +131,20 @@ uint8_t commandInput(fileState* workspace_file, char* input){
 	}
 
 	if (strcmp(input, "out")==0){
-		//command__out(); // still not ready
+		//command__out(workspace_file); // still not ready
+		char ch;
+		int start_line, end_line;
+		puts("Give positional arguments: first line, last line. Be careful: In text editor is currently using from-zero indexation, so 1st line has number 0, 2nd line has number 1, etc. If you wanna output full file, you should write -1 and -1 after two next questions\nFirst line: ");
+		scanf("%d", &start_line);
+		while ((ch=getchar())!='\n' &&ch!=EOF);
+		puts("Last line: ");
+		scanf("%d", &end_line);
+		while((ch=getchar())!='\n' && ch!=EOF);
+		putchar('\n');
+		//if (workspace_file->flc[start_line]) {
+		//	printf("it has read this stuff\n"); // but how?!
+		command__out(workspace_file, start_line, end_line);
+		//}
 		state = 1;
 	}
 
@@ -128,6 +156,11 @@ uint8_t commandInput(fileState* workspace_file, char* input){
 	if (strcmp(input, "mh")==0) {
 		command__mh();
 		state = 1;
+	}
+
+	if(strcmp(input, "draw")==0) {
+		debug_commands__draw(workspace_file);
+		state=1;
 	}
 
 	if(state!=1) {
@@ -169,13 +202,13 @@ int initEditor(char* filename){
 			free(open_file_state);
 			fclose(this_file);
 			return 0;
-		};
+		}else{
 		//printf("wrote something");
 		inp[strcspn(inp,"\n")]=0;
 		uint8_t inputStatus = commandInput(open_file_state, inp);
 		if(inputStatus != 100) {
 			break;
-		}
+		}}
 	}
 	
 	freeMem(open_file_state);
@@ -189,25 +222,45 @@ int initEditor(char* filename){
 int inInner__FILE_CONTENT_GETTER(fileState* workspace_file) {
 	//printf("Nothing great\n");
 	workspace_file->flc = malloc(sizeof(char*));
-	
+	workspace_file->flc[0] = malloc(1);
+
 	FILE* input_file = fopen(workspace_file->filename, "r");
-	printf("Great!\n");
+	//printf("Great!\n");
+	int line=0, pos = 0; //int multiplier = 1;
 	char fileInputBuffer;
 	while((fileInputBuffer = fgetc(input_file))!=EOF){
 		if(fileInputBuffer!='\n'){
-			printf("this one is - - - %c\n", fileInputBuffer);
+			//printf("this one is - - - %c\n", fileInputBuffer);
+			workspace_file->flc[line] = realloc(workspace_file->flc[line], (pos+2)*sizeof(char*));
+			workspace_file->flc[line][pos] = fileInputBuffer;
+			//printf("reallocated (only char)!\n");
+			++pos;
+			//++multiplier;
 		} else {
-			printf("there is a \\n in a file\n");
+			// well, why do I reallocate only if this stuff is empty? I have got some questions: maybe, it's better to place a boolean variable, which could save data about \n existence and then check if the char is not EOF so it will just reallocate... Hard to say
+			//printf("%d", (line+1)*sizeof(char*));
+			workspace_file->flc[line]=realloc(workspace_file->flc[line], (pos+2)*sizeof(char*));
+			workspace_file->flc[line][pos]='\0';//somewhere here appears one bug... Very interesting stuff, btw
+			workspace_file->flc = realloc(workspace_file->flc, (line+2)*sizeof(char*));
+			line++;
+			//workspace_file->flc[line+1]=malloc(1);
+			pos = 0;
+			//multiplier = 1;
+			//printf("there is a \\n in a file\n");
 		}
+		//printf("%c", fileInputBuffer);
 	}
 }
 
 void freeMem (fileState* workspace_file) {
 	int chk = 0;
 	while(workspace_file->flc[chk]) {
+		//printf("%s\t\t", workspace_file->flc[chk]);
 		free(workspace_file->flc[chk]);
-		printf("Cleaning memory\n");
+		//printf("Cleaning memory %d\n", chk);
+		chk++;
 	}
-	free(workspace_file->flc);
-	printf("Cleaning memory, but fully\n");
+	//free(workspace_file->flc);
+	//printf("%d\n", sizeof(workspace_file->flc));
+	//printf("Cleaning memory, but fully\n");
 }
