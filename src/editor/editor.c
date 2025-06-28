@@ -21,6 +21,7 @@ typedef struct {
 } editorState;
 
 typedef struct {
+	int len;
 	char* filename;
 	char** flc;
 	int edited;
@@ -36,11 +37,14 @@ uint8_t command__out(fileState* workspace_file, int from, int through) {
 	endpos = through+1;
 	if (from == -1 || through == -1) {
 		current = 0;
-		while (workspace_file->flc[current]){
+		while (workspace_file->flc[current] && current < workspace_file->len){
 			printf("%d.  %s\n", current, workspace_file->flc[current]);
 			current++;
 		}
 	}else{
+		if (endpos>=workspace_file->len-1){
+			endpos = workspace_file->len;
+		}
 		current = startpos;
 		while (current<endpos && workspace_file->flc[current]) {
 		printf("%d.  %s\n", current, workspace_file->flc[current]);
@@ -225,6 +229,7 @@ int inInner__FILE_CONTENT_GETTER(fileState* workspace_file) {
 	workspace_file->flc[0] = malloc(1);
 
 	FILE* input_file = fopen(workspace_file->filename, "r");
+	workspace_file->len=0;
 	//printf("Great!\n");
 	int line=0, pos = 0; //int multiplier = 1;
 	char fileInputBuffer;
@@ -237,6 +242,7 @@ int inInner__FILE_CONTENT_GETTER(fileState* workspace_file) {
 			++pos;
 			//++multiplier;
 		} else {
+			workspace_file->len++;
 			// well, why do I reallocate only if this stuff is empty? I have got some questions: maybe, it's better to place a boolean variable, which could save data about \n existence and then check if the char is not EOF so it will just reallocate... Hard to say
 			//printf("%d", (line+1)*sizeof(char*));
 			workspace_file->flc[line]=realloc(workspace_file->flc[line], (pos+2)*sizeof(char*));

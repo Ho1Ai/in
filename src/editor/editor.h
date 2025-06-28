@@ -11,6 +11,7 @@ typedef struct {
 } editorState;
 
 typedef struct {
+	int len;
 	char* filename;
 	char** flc; //flc - File Lines Content
 	int edited;
