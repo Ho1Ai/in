@@ -110,6 +110,16 @@ uint8_t commandInput(fileState* workspace_file, char* input){
 	}
 
 	if (strcmp(input, "rma")==0){
+		int line, from_pos;
+		char ch;
+		puts("Give positional arguments: line number and from which position you wanna remove text\n");
+		puts("Line number: ");
+		scanf("%d", &line);
+		while ((ch=getchar())!='\n' && ch != EOF);
+		puts("Position (remember, that 1st char in the line has 0th position, 2nd char has 1st position, 3rd has 2nd, 4th has 3rd, etc.): ");
+		scanf("%d", &from_pos);
+		while((ch=getchar())!='\n' && ch!=EOF);
+		command__rma(workspace_file, line, from_pos);
 		state = 1;
 	}
 
