@@ -198,7 +198,7 @@ int initEditor(char* filename){
 	int file_existence = 1;
 	FILE* this_file = fopen(filename,"r");
 	if(!this_file){
-		printf("No such file. Creating new...\n");
+		printf("No such file. Creating new file.\n");
 		FILE* create_file = fopen(filename, "w");
 		file_existence = 0;
 	}
