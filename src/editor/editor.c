@@ -67,6 +67,18 @@ uint8_t command__ins(fileState* workspace_file, int line, int position) {
 
 uint8_t command__rm(fileState* workspace_file, int line, int from, int through) {
 	printf("there is nothing there!\n");
+	char* new_line = malloc(sizeof(char*));
+	int xi = 0; //xi is a letter from Greek alphabet. Same to x. Xi is just currently used position
+	int len = 1;
+	while(workspace_file->flc[line][xi]){
+		if (xi<from || xi>through){
+			++len;
+			new_line = realloc(new_line, len*sizeof(char*));
+			new_line[len-2] = workspace_file->flc[line][xi];
+		}
+		xi++;
+	}
+	printf("result: %s\n", new_line);
 }
 
 uint8_t command__w(fileState* workspace_file) {
