@@ -58,7 +58,20 @@ uint8_t command__c() {
 }
 
 uint8_t command__rma(fileState* workspace_file, int line, int from) {
-	workspace_file->flc[line][from] = '\0';
+	//printf("%d\n", strlen(workspace_file->flc[line]));
+	if(from<strlen(workspace_file->flc[line])){
+		workspace_file->flc[line][from] = '\0';
+		char* tmp_line=malloc(sizeof(char*)*((strlen(workspace_file->flc[line])+1)));
+		int xi = 0;
+		while(workspace_file->flc[line][xi]){
+			tmp_line[xi]=workspace_file->flc[line][xi];
+			xi++;
+		}
+		tmp_line[strlen(workspace_file->flc[line])]='\0';
+		free(workspace_file->flc[line]);
+		workspace_file->flc[line] = tmp_line;
+	//printf("%d\n", strlen(workspace_file->flc[line]));
+	}
 }
 
 uint8_t command__ins(fileState* workspace_file, int line, int position) {
@@ -134,7 +147,7 @@ uint8_t commandInput(fileState* workspace_file, char* input){
 		puts("Line number: ");
 		scanf("%d", &line);
 		while ((ch=getchar())!='\n' && ch != EOF);
-		puts("Position (remember, that 1st char in the line has 0th position, 2nd char has 1st position, 3rd has 2nd, 4th has 3rd, etc.): ");
+		puts("Position (remember, that 1st char in the line has 0th position, 2nd char has 1st position, 3rd has 2nd, 4th has 3rd, etc. Position means from which position line will be wiped): ");
 		scanf("%d", &from_pos);
 		while((ch=getchar())!='\n' && ch!=EOF);
 		command__rma(workspace_file, line, from_pos);
