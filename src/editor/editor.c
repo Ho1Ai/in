@@ -74,9 +74,65 @@ uint8_t command__rma(fileState* workspace_file, int line, int from) {
 	}
 }
 
+
+
+
+
+
 uint8_t command__ins(fileState* workspace_file, int line, int position) {
+	//char** prev_line_keeper = malloc(sizeof(char*)*2);
+	int startpos_fix = 0;
 	
+	//bool can_proceed = false;
+
+	if(line<workspace_file->len) {
+		if(position >= 0){
+			if(position < strlen(workspace_file->flc[line])) {
+				startpos_fix = position;
+			} else {
+				puts("Start position is higher, than line length. Setting start position to line length\n");
+				startpos_fix = strlen(workspace_file->flc[line]);
+			}
+		} else {
+			puts("You can't place substring somewhere before line. Exiting this command\n");
+			//free(prev_line_keeper);
+			return 99; // 99 is just an error code. Why 99: because my finger was laying on '9' symbol on my kb
+		}
+	} else {
+		printf("There is no line with this number... Exiting this command\n");
+		//free(prev_line_keeper);
+		return 99;
+	}
+
+	int xi = 0;
+	/*
+	prev_line_keeper[0]=malloc(sizeof(char*));
+	prev_line_keeper[1]=malloc(sizeof(char*));
+	*/
+	
+	/*
+	while(xi < startpos_fix) {
+		prev_line_keeper[0] = realloc(prev_line_keeper, sizeof(char*)*(xi+1));
+		prev_line_keeper[0][xi]=workspace_file->flc[line][xi];
+		xi++;
+		
+	}
+
+	while(xi>=startpos_fix && xi < strlen(workspace_file->flc[line])) {
+		break;
+	}
+
+	free(prev_line_keeper[0]); free(prev_line_keeper[1]); free(prev_line_keeper);
+	*/
+	//printf("%d\n", line);
+	//printf("%d\n", startpos_fix);
+	//printf("%d\n", workspace_file->len);
 }
+
+
+
+
+
 
 uint8_t command__rm(fileState* workspace_file, int line, int from, int through) {
 	printf("there is nothing there!\n");
@@ -137,6 +193,18 @@ uint8_t commandInput(fileState* workspace_file, char* input){
 	}
 
 	if (strcmp(input, "ins")==0) {
+		int line_num, startpos;
+		char fix;
+		printf("Give positional arguments: line number, from position\n");
+		printf("line number:\n");
+		scanf("%d", &line_num);
+		while((fix=getchar())!='\n' && fix != EOF);
+		printf("start position:\n");
+		scanf("%d", &startpos);
+		while((fix=getchar())!='\n' && fix != EOF);
+
+		command__ins(workspace_file, line_num, startpos);
+
 		state = 1;
 	}
 
@@ -236,6 +304,7 @@ int initEditor(char* filename){
 	editorState inState;
 	fileState* open_file_state = (fileState*)malloc(sizeof(fileState)); // called like this only here, because everywhere else I use workspace_file instead
 	open_file_state->filename = filename;
+	open_file_state->len = 0;
 	//printf("%s", open_file_state->filename); // just a debug attempt
 	int filewrite_test = inInner__FILE_CONTENT_GETTER(open_file_state);
 	while(1){
@@ -283,7 +352,7 @@ int inInner__FILE_CONTENT_GETTER(fileState* workspace_file) {
 			++pos;
 			//++multiplier;
 		} else {
-			workspace_file->len++;
+			workspace_file->len+=1;
 			// well, why do I reallocate only if this stuff is empty? I have got some questions: maybe, it's better to place a boolean variable, which could save data about \n existence and then check if the char is not EOF so it will just reallocate... Hard to say
 			//printf("%d", (line+1)*sizeof(char*));
 			workspace_file->flc[line]=realloc(workspace_file->flc[line], (pos+2)*sizeof(char*));
