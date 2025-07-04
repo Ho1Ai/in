@@ -18,6 +18,7 @@
 //I wanna tell you something about vars naming:
 //1. xi - variable, which means offset
 //2. 99 is an exit code for functions. It may be appeared by inner errors (e.g. u wanna insert something into the line, which has number -12345678)
+//3. zita - variable, which means offset (also as xi)
 
 typedef struct {
 	int line;
@@ -34,6 +35,10 @@ typedef struct {
 void cleanScreen() {
 	system("clear");
 }
+
+
+
+
 
 uint8_t command__out(fileState* workspace_file, int from, int through) {
 	int startpos, current, endpos;
@@ -57,9 +62,21 @@ uint8_t command__out(fileState* workspace_file, int from, int through) {
 	return 0;
 }
 
+
+
+
+
+
+
 uint8_t command__c() {
-	cleanScreen();
+	cleanScreen(); //why?..
 }
+
+
+
+
+
+
 
 uint8_t command__rma(fileState* workspace_file, int line, int from) {
 	//printf("%d\n", strlen(workspace_file->flc[line]));
@@ -260,17 +277,107 @@ uint8_t command__rm(fileState* workspace_file, int line, int from, int through) 
 	//printf("%d", strlen(workspace_file->flc[line]));
 }
 
-uint8_t command__w(fileState* workspace_file) {
 
+
+
+
+
+uint8_t command__w(fileState* workspace_file) {
+	char* task = malloc(sizeof(char));
+	char char_buffer;
+
+	int len = 1;
+	int xi = 0;
+	int can_proceed = TRUE;
+	
+	puts("How you wanna write changes? write o, ae or aenti (overwrite, append, append with no tag input):");
+	
+	while ((char_buffer = getchar())!=EOF) {
+		if(char_buffer == '\n') {
+			char_buffer = '\0';
+			can_proceed = FALSE;
+		}
+		task = realloc(task, sizeof(char)*len);
+		task[xi] = char_buffer;
+		len++;
+		xi++;
+		if(can_proceed != TRUE){
+			break;
+		}
+	}
+
+	if (strcmp(task, "o") == 0) {
+		printf("Overwriting file...\n");
+		FILE* file_out_stream = fopen(workspace_file->filename,"w");
+		char* final_file = malloc(sizeof(char));
+		
+		int pos_x = 0, pos_y = 0;
+		int appender_position = 0;
+		while(pos_y<workspace_file->len){
+			pos_x = 0;
+			int size_of_current_line = strlen(workspace_file->flc[pos_y]);
+			final_file = realloc(final_file, (strlen(final_file)+size_of_current_line+1)*sizeof(char));//+1 is for \n symbol
+			while(workspace_file->flc[pos_y][pos_x]) {
+				final_file[appender_position] = workspace_file->flc[pos_y][pos_x];
+				appender_position++;
+				pos_x++;
+			}
+			final_file[appender_position] = '\n';
+			appender_position++;
+			pos_y++;
+		}
+
+		//printf("%s", final_file);
+		
+		
+
+		int test = fputs(final_file, file_out_stream);
+		if (test == EOF) {
+			printf("Came face to face with a problem while file writting. Couldn't overwrite file");
+		} else {
+			printf("Success!\n");
+		} // YES!!! IT WORKS!!!
+		fclose(file_out_stream);
+		free(final_file);
+		return 0;
+	} 
+
+	if (strcmp(task, "ae") == 0) {
+		printf("append tag is not ready at the moment. Try again in future versions, please\n");
+	}
+
+	if(strcmp(task, "aenti") == 0) {
+		printf("append with no tag input is not ready at the moment. Try again in future versions, please\n");
+	}
+
+	//printf("%s\n", task);
+	free(task);
 }
+
+
+
+
+
 
 uint8_t command__h() {
 	printf("This list of commands shows small list of commands and some things, which these commands need, but doesn't show more info, than this, because else this list won't fit viewport on some machines. In order to see better help menu, write mh and visit github or start in-mh application\n\nlist:\n\nh - show this menu\n\nw - write file\n\nq - quit\n\nrm - remove area.\t{after writting this command and pressing enter} [line] [start position] [end position]\nrma - remove after.\t{after writting this command and pressing enter} [line] [start position]\n\nins - insert.\t{after pressing enter} [line] [position]\t{after pressing enter} [line, which you wanna insert]\n");
 }
 
+
+
+
+
+
+
 uint8_t command__mh() {
 	printf("Not ready yet... You can quit in text editor and start in-mh in order to see more info about application\n");
 }
+
+
+
+
+
+
 
 void debug_commands__draw(fileState* workspace_file){
 	int x=0;
@@ -280,6 +387,12 @@ void debug_commands__draw(fileState* workspace_file){
 	}
 }
 
+
+
+
+
+
+
 uint8_t commandInput(fileState* workspace_file, char* input){
 	uint8_t state = 0;
 	if(strcmp(input, "q")==0){
@@ -288,6 +401,7 @@ uint8_t commandInput(fileState* workspace_file, char* input){
 	}
 
 	if (strcmp(input, "w")==0) {
+		command__w(workspace_file);
 		state = 1;
 	} 
 
@@ -387,6 +501,12 @@ uint8_t commandInput(fileState* workspace_file, char* input){
 
 	return 100;
 }
+
+
+
+
+
+
 
 int inInner__FILE_CONTENT_GETTER(fileState* workspace_file);
 
