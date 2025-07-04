@@ -226,7 +226,7 @@ uint8_t command__ins(fileState* workspace_file, int line, int position) {
 	free(prev_line_keeper[0]); free(prev_line_keeper[1]); free(prev_line_keeper);
 	*/
 
-	free(prev_line_keeper[0]); free(prev_line_keeper[1]); free(prev_line_keeper); free(appending_line); free(final_line);
+	free(prev_line_keeper[0]); free(prev_line_keeper[1]); free(prev_line_keeper); free(appending_line); //yeah, I was doing free(final_line), tho final_line and workspace_file->flc[line] are pointing to the same place (look 17 lines higher)... Ima genius!!!
 
 	//printf("%d\n", line);
 	//printf("%d\n", startpos_fix);
