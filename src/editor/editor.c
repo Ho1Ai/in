@@ -3,8 +3,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#define true 1
-#define false 0
+#define TRUE 1
+#define FALSE 0
 #define MAX_LINE_LENGTH 2048 //At the moment it will be enough to use 2kb lines
 #define QUIT_CODE 101 //Exit codes starts from 101 and 100 is for "continue". Used in initEditor
 //#define WRITE_CODE 102
@@ -14,6 +14,10 @@
 //#define HELP_OUTPUT_CODE 106
 
 //how to write Hello, World in Assembly
+
+//I wanna tell you something about vars naming:
+//1. xi - variable, which means offset
+//2. 99 is an exit code for functions. It may be appeared by inner errors (e.g. u wanna insert something into the line, which has number -12345678)
 
 typedef struct {
 	int line;
@@ -80,10 +84,18 @@ uint8_t command__rma(fileState* workspace_file, int line, int from) {
 
 
 uint8_t command__ins(fileState* workspace_file, int line, int position) {
-	//char** prev_line_keeper = malloc(sizeof(char*)*2);
+	char** prev_line_keeper = malloc(sizeof(char*)*2);
 	int startpos_fix = 0;
 	
+	int start_through_the_end = FALSE;
+
 	//bool can_proceed = false;
+
+	if(line < 0){
+		free(prev_line_keeper);
+		puts("You can't replace something before file's beginning... Exiting this command");
+		return 99;
+	}
 
 	if(line<workspace_file->len) {
 		if(position >= 0){
@@ -92,24 +104,113 @@ uint8_t command__ins(fileState* workspace_file, int line, int position) {
 			} else {
 				puts("Start position is higher, than line length. Setting start position to line length\n");
 				startpos_fix = strlen(workspace_file->flc[line]);
+				start_through_the_end = TRUE;
 			}
 		} else {
 			puts("You can't place substring somewhere before line. Exiting this command\n");
-			//free(prev_line_keeper);
+			free(prev_line_keeper);
 			return 99; // 99 is just an error code. Why 99: because my finger was laying on '9' symbol on my kb
 		}
 	} else {
 		printf("There is no line with this number... Exiting this command\n");
-		//free(prev_line_keeper);
+		free(prev_line_keeper);
 		return 99;
 	}
 
 	int xi = 0;
-	/*
-	prev_line_keeper[0]=malloc(sizeof(char*));
-	prev_line_keeper[1]=malloc(sizeof(char*));
-	*/
 	
+	prev_line_keeper[0]=malloc(sizeof(char));
+	prev_line_keeper[1]=malloc(sizeof(char));
+	
+	int new_len = 1; // used for both substring
+
+	while(xi<startpos_fix) {
+		prev_line_keeper[0] = realloc(prev_line_keeper[0], new_len*sizeof(char));
+		prev_line_keeper[0][xi] = workspace_file->flc[line][xi];
+		new_len++;
+		xi++;
+	}
+	prev_line_keeper[0] = realloc(prev_line_keeper[0], new_len*sizeof(char));
+	prev_line_keeper[0][xi] = '\0';
+
+	int last_index = xi;
+	xi = 0;
+	new_len = 1;
+
+	if(start_through_the_end!=TRUE){
+		//int last_index = xi;
+		//xi = 0;
+		//new_len = 1;
+		while(last_index+xi<workspace_file->flc[line][xi+last_index]){ // well, now I see, that it would be a great idea... I mean adding int variable, which could keep result of last_index + xi... well, let it be.
+			prev_line_keeper[1] = realloc(prev_line_keeper[1], sizeof(char)*new_len);
+			prev_line_keeper[1][xi]=workspace_file->flc[line][xi+last_index];
+			xi++;
+			new_len++;
+		}
+	}
+	prev_line_keeper[1] = realloc(prev_line_keeper[1], new_len*sizeof(char));
+	prev_line_keeper[1][xi] = '\0';
+
+	char input_thread_chars; 
+
+	puts("Please, enter the substring, which you wanna insert");
+	
+	xi = 0;
+	new_len = 1;
+	char* appending_line=malloc(sizeof(char));
+
+	while((input_thread_chars = getchar())!=EOF && input_thread_chars!='\n'){
+		appending_line = realloc(appending_line, sizeof(char) * new_len);
+		appending_line[xi] = input_thread_chars;
+		new_len++;
+		xi++;
+		// YEAAAAAAAAAAH!!!!!! IT WORKS!!!!!!!!!!!!!!!!!!!!!!! FINALLY IT DOES NOT DROP IN MY FACE SOMETHING LIKE "Segmentation Fault (core dumped) 4132942187589432759874219847321847983217584375198435"
+			       // ppl, who read this stuff, feel my happiness... I don't understand, what did I write in this file, but I like the fact that it still can work
+	}
+	putchar('\n');
+	appending_line = realloc(appending_line, sizeof(char)*new_len);
+	appending_line[xi] = '\0';
+
+
+	xi = 0;
+	new_len = 1;
+	int zita = 0; // counter for second line
+
+	char* final_line = malloc(sizeof(char));
+
+	//concatenating
+	while(prev_line_keeper[0][zita]) {
+		final_line = realloc(final_line, new_len*sizeof(char));
+		final_line[xi] = prev_line_keeper[0][zita];
+		new_len++;
+		xi++;
+		zita++;
+	}
+
+	zita = 0;
+
+	while(appending_line[zita]) {
+		final_line = realloc(final_line, new_len*sizeof(char));
+		final_line[xi] = appending_line[zita];
+		zita++; xi++; new_len++;
+	}
+
+	zita = 0;
+
+	while(prev_line_keeper[1][zita]) {
+		final_line = realloc(final_line, new_len*sizeof(char));
+		final_line[xi] = prev_line_keeper[1][zita];
+		zita++; xi++; new_len++;
+	}
+	
+	final_line = realloc(final_line, new_len*sizeof(char));
+	final_line[xi] = '\0'; // IDK why do I forget about it any time I touch strings in C, but anyway I forget about it and tryna fix this stuff
+
+	//printf("%s\n", final_line);
+
+	free(workspace_file->flc[line]);
+	workspace_file->flc[line] = final_line;
+
 	/*
 	while(xi < startpos_fix) {
 		prev_line_keeper[0] = realloc(prev_line_keeper, sizeof(char*)*(xi+1));
@@ -124,6 +225,9 @@ uint8_t command__ins(fileState* workspace_file, int line, int position) {
 
 	free(prev_line_keeper[0]); free(prev_line_keeper[1]); free(prev_line_keeper);
 	*/
+
+	free(prev_line_keeper[0]); free(prev_line_keeper[1]); free(prev_line_keeper); free(appending_line); free(final_line);
+
 	//printf("%d\n", line);
 	//printf("%d\n", startpos_fix);
 	//printf("%d\n", workspace_file->len);
