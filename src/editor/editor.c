@@ -257,14 +257,14 @@ uint8_t command__ins(fileState* workspace_file, int line, int position) {
 
 uint8_t command__rm(fileState* workspace_file, int line, int from, int through) {
 	printf("there is nothing there!\n");
-	char* new_line = malloc(sizeof(char*));
+	char* new_line = malloc(sizeof(char));
 	int xi = 0; //xi is a letter from Greek alphabet. Same to x. Xi is just currently used position
 	int final_line_len = 1;
 	int ref_line_len = strlen(workspace_file->flc[line]); // why did I add this stuff??? // well, it is needed for a small bugfix
 	while(workspace_file->flc[line][xi] && xi < ref_line_len){
 		if (xi<from || xi>through){
 			++final_line_len;
-			new_line = realloc(new_line, final_line_len*sizeof(char*));
+			new_line = realloc(new_line, final_line_len*sizeof(char));
 			new_line[final_line_len-2] = workspace_file->flc[line][xi];
 		}
 		xi++;
@@ -272,6 +272,8 @@ uint8_t command__rm(fileState* workspace_file, int line, int from, int through) 
 	new_line[final_line_len-1] = '\0';
 	//puts(new_line);
 	free(workspace_file->flc[line]);
+	
+	printf("%d\n%d\n", sizeof(new_line), sizeof(workspace_file->flc[line]));
 	workspace_file->flc[line]=new_line;
 	//printf("result: %s\n", new_line);
 	//printf("%d", strlen(workspace_file->flc[line]));
@@ -326,6 +328,9 @@ uint8_t command__w(fileState* workspace_file) {
 			appender_position++;
 			pos_y++;
 		}
+
+		final_file = realloc(final_file, (strlen(final_file)+1)*sizeof(char));
+		//final_file[strlen(final_file)-1]= '\0';
 
 		//printf("%s", final_file);
 		
@@ -570,7 +575,7 @@ int inInner__FILE_CONTENT_GETTER(fileState* workspace_file) {
 	while((fileInputBuffer = fgetc(input_file))!=EOF){
 		if(fileInputBuffer!='\n'){
 			//printf("this one is - - - %c\n", fileInputBuffer);
-			workspace_file->flc[line] = realloc(workspace_file->flc[line], (pos+2)*sizeof(char*));
+			workspace_file->flc[line] = realloc(workspace_file->flc[line], (pos+2)*sizeof(char));
 			workspace_file->flc[line][pos] = fileInputBuffer;
 			//printf("reallocated (only char)!\n");
 			++pos;
@@ -579,7 +584,7 @@ int inInner__FILE_CONTENT_GETTER(fileState* workspace_file) {
 			workspace_file->len+=1;
 			// well, why do I reallocate only if this stuff is empty? I have got some questions: maybe, it's better to place a boolean variable, which could save data about \n existence and then check if the char is not EOF so it will just reallocate... Hard to say
 			//printf("%d", (line+1)*sizeof(char*));
-			workspace_file->flc[line]=realloc(workspace_file->flc[line], (pos+2)*sizeof(char*));
+			workspace_file->flc[line]=realloc(workspace_file->flc[line], (pos+2)*sizeof(char));
 			workspace_file->flc[line][pos]='\0';//somewhere here appears one bug... Very interesting stuff, btw
 			workspace_file->flc = realloc(workspace_file->flc, (line+2)*sizeof(char*));
 			line++;
