@@ -3,4 +3,8 @@
 #ifndef MACRO
 #define MACRO
 
+typedef struct {
+	char*** swapper;
+} macroList;
+
 #endif
