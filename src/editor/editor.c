@@ -256,7 +256,7 @@ uint8_t command__ins(fileState* workspace_file, int line, int position) {
 
 
 uint8_t command__rm(fileState* workspace_file, int line, int from, int through) {
-	printf("there is nothing there!\n");
+	//printf("there is nothing there!\n");
 	char* new_line = malloc(sizeof(char));
 	int xi = 0; //xi is a letter from Greek alphabet. Same to x. Xi is just currently used position
 	int final_line_len = 1;
@@ -397,6 +397,32 @@ void debug_commands__draw(fileState* workspace_file){
 
 
 
+int command__afl(fileState* workspace_file, int line_number) {
+	printf("None");
+	workspace_file->flc = realloc(workspace_file->flc, (workspace_file->len+1)*sizeof(char*));
+	
+	for (int i = workspace_file->len; i > line_number; i--) {
+		free(workspace_file->flc[i]);
+
+		workspace_file->flc[i] = malloc(sizeof(char));
+
+		for(int j = 0; j<strlen(workspace_file->flc[i-1]); j++) {
+			workspace_file->flc[i] = realloc(workspace_file->flc[i], sizeof(char)*(j+1));
+			workspace_file->flc[i][j] = workspace_file->flc[i-1][j];
+		}
+		//workspace_file->flc[i] = workspace_file->flc[i-1];
+	}
+
+	free(workspace_file->flc[line_number]);
+	workspace_file->flc[line_number] = malloc(sizeof(char));
+	workspace_file->flc[line_number] = '\0';
+	
+	workspace_file->len++;
+}
+
+
+
+
 
 uint8_t commandInput(fileState* workspace_file, char* input){
 	uint8_t state = 0;
@@ -492,6 +518,13 @@ uint8_t commandInput(fileState* workspace_file, char* input){
 	if (strcmp(input, "mh")==0) {
 		command__mh();
 		state = 1;
+	}
+
+	if(strcmp(input, "afl")==0) {
+		int line_number;
+		puts("Where do you want to add empty line:\n");
+		scanf("%d", line_number);
+		command__afl(workspace_file,line_number);
 	}
 
 	if(strcmp(input, "draw")==0) {

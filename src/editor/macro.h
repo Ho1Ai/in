@@ -7,4 +7,10 @@ typedef struct {
 	char*** swapper;
 } macroList;
 
+void addMacro();
+
+void removeMacro();
+
+void getMacroList();
+
 #endif
