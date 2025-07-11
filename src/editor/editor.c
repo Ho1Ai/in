@@ -398,26 +398,52 @@ void debug_commands__draw(fileState* workspace_file){
 
 
 int command__afl(fileState* workspace_file, int line_number) {
-	printf("None");
+	if(line_number > workspace_file->len) {
+		printf("line number is higher than file length + 1. Max possible number is: %d\n", workspace_file->len);
+		return 1;
+	}
+
+	if(line_number < 0) {
+		printf("You can't place something before file start. The least possible number is 0\n");
+		return 1;
+	}
+	//printf("None");
 	workspace_file->flc = realloc(workspace_file->flc, (workspace_file->len+1)*sizeof(char*));
-	
+	workspace_file->flc[workspace_file->len] = malloc(sizeof(char));
 	for (int i = workspace_file->len; i > line_number; i--) {
 		free(workspace_file->flc[i]);
 
 		workspace_file->flc[i] = malloc(sizeof(char));
-
-		for(int j = 0; j<strlen(workspace_file->flc[i-1]); j++) {
+		int cur_l = 1;
+		for(int j = 0; j<(strlen(workspace_file->flc[i-1])>=0?strlen(workspace_file->flc[i-1]):0); j++) {
+			//printf("overwriting %d %d  ", i, j);
 			workspace_file->flc[i] = realloc(workspace_file->flc[i], sizeof(char)*(j+1));
 			workspace_file->flc[i][j] = workspace_file->flc[i-1][j];
+			cur_l++;
 		}
+
+		//printf("%d\n", cur_l);
+
+		workspace_file->flc[i] = realloc(workspace_file->flc[i], (cur_l)*sizeof(char)); //yup, I forgot that cur_l equals 1 when it is being defined and that means it will be 1 symbol 
+		workspace_file->flc[i][cur_l-1] = '\0';
 		//workspace_file->flc[i] = workspace_file->flc[i-1];
 	}
-
+	
 	free(workspace_file->flc[line_number]);
 	workspace_file->flc[line_number] = malloc(sizeof(char));
-	workspace_file->flc[line_number] = '\0';
-	
+	workspace_file->flc[line_number][0] = '\0';
+	/*
+	printf("%d - %d - %d - %s", sizeof(char), sizeof('\0'), line_number, workspace_file->flc[line_number]);
+
+	for (int i = 0; i <= workspace_file->len; i++) {
+		printf("%d. %s\n", i, workspace_file->flc[i]);
+	}*/
+
 	workspace_file->len++;
+
+	printf("Added succesfully!\n");
+
+	return 0;
 }
 
 
@@ -523,8 +549,11 @@ uint8_t commandInput(fileState* workspace_file, char* input){
 	if(strcmp(input, "afl")==0) {
 		int line_number;
 		puts("Where do you want to add empty line:\n");
-		scanf("%d", line_number);
+		scanf("%d", &line_number);
+		char fix;
+		while((fix = getchar())!='\n' && fix !=EOF);
 		command__afl(workspace_file,line_number);
+		state = 1;
 	}
 
 	if(strcmp(input, "draw")==0) {
@@ -632,7 +661,7 @@ int inInner__FILE_CONTENT_GETTER(fileState* workspace_file) {
 
 void freeMem (fileState* workspace_file) {
 	int chk = 0;
-	while(workspace_file->flc[chk]) {
+	while(chk<workspace_file->len) {
 		//printf("%s\t\t", workspace_file->flc[chk]);
 		free(workspace_file->flc[chk]);
 		//printf("Cleaning memory %d\n", chk);
