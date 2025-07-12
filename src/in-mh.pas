@@ -17,6 +17,7 @@ begin
 	pages_content[7]:='out <=> output'+#13#10+'Requires following arguments:'+#13#10+'[start line number] [end line number]'+#13#10#10+'{e.g.:}'+#10+'> out'+#10+'Give positional arguments: start line number, end line number'+#10+'> 10 11'+#10+'==___---___=='+#10+'Lorem Ipsum'+#10+'Lorem ipsum dolor sit amet <...>';
 	pages_content[8]:='ins <=> insert'+#13#10+'Requires following arguments (splitted in 2 steps):'+#13#10+'1. [line number] [from position]'+#10+'2. [text to insert]'+#10#10+'{e.g.:}'+#10+'> ins'+#10+'Give positional arguments: line number, from position'+#10+'> 10 10'+#10+'Write text you wanna insert (max buffer size is 1024)'+#10+'> Lorem ipsum dolor sit amet...'+#10#10+'Note: there is no buffer size, btw. It has been added when I was making this in-mh file';
 	pages_content[9]:='draw (indev command)'+#13#10+'Outputs full file content. Does not need any arguments'+#10+'Example:'+#10#10+'> draw'+#10+'0. Some'+#10+'1. text'+#10+'2. is'+#10+'3. here'+#10+'4. No matter what text btw';
+	pages_content[10]:='afl <=> add fracture line' + #13#10 + 'Requires line number, where you wanna create empty line. Creates empty line'+#10+'Example:'+#10+'> afl'+#10+'Where do you want to add an empty line:'+#10#10+'2 {e.g.}'+#10+'Added succesfully!';
 	writeln('page: ', page_number);
 	writeln(pages_content[0]);
 	writeln(#13#10#10);

@@ -42,8 +42,19 @@ void cleanScreen() {
 
 uint8_t command__out(fileState* workspace_file, int from, int through) {
 	int startpos, current, endpos;
-	startpos = from;
-	endpos = through+1;
+	if (from >=-1) { // from can be -1, because if it is -1 (or through is -1) it returns full file
+		startpos = from;
+	} else {
+		printf("Start position can't be less, than -1. Setting start position to 0\n\n");
+		startpos = 0;
+	}
+
+	if(through >= -1) {
+		endpos = through+1;
+	} else {
+		printf("Unexpected argument as last position. The argument must be equal or above -1\n");
+		return 1;
+	}
 	if (from == -1 || through == -1) {
 		current = 0;
 		while (workspace_file->flc[current] && current < workspace_file->len){
@@ -365,8 +376,8 @@ uint8_t command__w(fileState* workspace_file) {
 
 
 uint8_t command__h() {
-	printf("This list of commands shows small list of commands and some things, which these commands need, but doesn't show more info, than this, because else this list won't fit viewport on some machines. In order to see better help menu, write mh and visit github or start in-mh application\n\nlist:\n\nh - show this menu\n\nw - write file\n\nq - quit\n\nrm - remove area.\t{after writting this command and pressing enter} [line] [start position] [end position]\nrma - remove after.\t{after writting this command and pressing enter} [line] [start position]\n\nins - insert.\t{after pressing enter} [line] [position]\t{after pressing enter} [line, which you wanna insert]\n");
-}
+	printf("This list of commands shows small list of commands and some things, which these commands need, but doesn't show more info, than this, because else this list won't fit viewport on some machines. In order to see better help menu, write mh and visit github or start in-mh application\n\nlist:\n\nh - show this menu\n\nw - write file.\t{after writting this command and pressing enter} [o/ae/aenti - overwrite/append/append with no tag input]\n\nq - quit\n\nrm - remove area.\t{after writting this command and pressing enter} [line] [start position] [end position]\nrma - remove after.\t{after writting this command and pressing enter} [line] [start position]\n\nins - insert.\t{after pressing enter} [line] [position]\t{after pressing enter} [line, which you wanna insert]\nafl - add fracture line.\t {after writting this command and pressing enter} [line]\n");
+
 
 
 
@@ -442,11 +453,25 @@ int command__afl(fileState* workspace_file, int line_number) {
 	workspace_file->len++;
 
 	printf("Added succesfully!\n");
+}
 
+
+
+
+
+int command__afln (fileState* workspace_file, int line, int count) {
 	return 0;
 }
 
 
+int command__rml (fileState* workspace_file, int line) {
+	return 0;
+}
+
+
+int command__rmln (fileState* workspace_file, int from_line, int through_line) {
+	return 0;
+}
 
 
 
