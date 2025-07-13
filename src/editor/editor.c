@@ -169,7 +169,7 @@ uint8_t command__ins(fileState* workspace_file, int line, int position) {
 		//int last_index = xi;
 		//xi = 0;
 		//new_len = 1;
-		while(last_index+xi<workspace_file->flc[line][xi+last_index]){ // well, now I see, that it would be a great idea... I mean adding int variable, which could keep result of last_index + xi... well, let it be.
+		while(last_index+xi<strlen(workspace_file->flc[line])){ // well, now I see, that it would be a great idea... I mean adding int variable, which could keep result of last_index + xi... well, let it be.
 			prev_line_keeper[1] = realloc(prev_line_keeper[1], sizeof(char)*new_len);
 			prev_line_keeper[1][xi]=workspace_file->flc[line][xi+last_index];
 			xi++;
