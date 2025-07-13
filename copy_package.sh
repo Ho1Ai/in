@@ -1,0 +1,1 @@
+cp "./build/in" "./package/"

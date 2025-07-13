@@ -377,7 +377,7 @@ uint8_t command__w(fileState* workspace_file) {
 
 uint8_t command__h() {
 	printf("This list of commands shows small list of commands and some things, which these commands need, but doesn't show more info, than this, because else this list won't fit viewport on some machines. In order to see better help menu, write mh and visit github or start in-mh application\n\nlist:\n\nh - show this menu\n\nw - write file.\t{after writting this command and pressing enter} [o/ae/aenti - overwrite/append/append with no tag input]\n\nq - quit\n\nrm - remove area.\t{after writting this command and pressing enter} [line] [start position] [end position]\nrma - remove after.\t{after writting this command and pressing enter} [line] [start position]\n\nins - insert.\t{after pressing enter} [line] [position]\t{after pressing enter} [line, which you wanna insert]\nafl - add fracture line.\t {after writting this command and pressing enter} [line]\n");
-
+}
 
 
 
@@ -451,8 +451,8 @@ int command__afl(fileState* workspace_file, int line_number) {
 	}*/
 
 	workspace_file->len++;
-
-	printf("Added succesfully!\n");
+	return 0;
+	//printf("Added succesfully!\n");
 }
 
 
@@ -460,6 +460,16 @@ int command__afl(fileState* workspace_file, int line_number) {
 
 
 int command__afln (fileState* workspace_file, int line, int count) {
+	int accumulator=0;
+	int state = 0;
+	while(accumulator < count) {
+		state = command__afl(workspace_file, line);
+		if (state != 0) {
+			printf("Stopped on `%d` itteration\n", accumulator+1);
+			return 1;
+		}
+		accumulator++;
+	}
 	return 0;
 }
 
@@ -573,11 +583,34 @@ uint8_t commandInput(fileState* workspace_file, char* input){
 
 	if(strcmp(input, "afl")==0) {
 		int line_number;
-		puts("Where do you want to add empty line:\n");
+		puts("Where do you want to add an empty line:");
 		scanf("%d", &line_number);
 		char fix;
 		while((fix = getchar())!='\n' && fix !=EOF);
-		command__afl(workspace_file,line_number);
+		int check = command__afl(workspace_file,line_number);
+		if(check == 0) {
+			printf("Added succesfully\n");
+		} else if (check == 1) {
+			printf("Something went wrong... please, try again\n");
+		}
+		state = 1;
+	}
+
+	if(strcmp(input, "afln")==0) {
+		int line_number, count;
+		char fix;
+		puts("Where do you want to add an empty lines:");
+		scanf("%d", &line_number);
+		while ((fix = getchar())!='\n'&&fix!=EOF);
+		puts("How many lines do you want to add:");
+		scanf("%d", &count);
+		int result = command__afln(workspace_file, line_number, count);
+		while((fix = getchar())!='\n' && fix != EOF);
+		if(result == 0) {
+			printf("Added successfully (%d lines)\n", count);
+		} else {
+			printf("Something went wrong... please, try again\n");
+		}
 		state = 1;
 	}
 
