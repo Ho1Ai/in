@@ -127,7 +127,7 @@ uint8_t command__ins(fileState* workspace_file, int line, int position) {
 
 	if(line<workspace_file->len) {
 		if(position >= 0){
-			if(position < strlen(workspace_file->flc[line])) {
+			if(position <= strlen(workspace_file->flc[line])) {
 				startpos_fix = position;
 			} else {
 				puts("Start position is higher, than line length. Setting start position to line length\n");
@@ -484,7 +484,6 @@ int command__rmln (fileState* workspace_file, int from_line, int through_line) {
 }
 
 
-
 uint8_t commandInput(fileState* workspace_file, char* input){
 	uint8_t state = 0;
 	if(strcmp(input, "q")==0){
@@ -599,7 +598,7 @@ uint8_t commandInput(fileState* workspace_file, char* input){
 	if(strcmp(input, "afln")==0) {
 		int line_number, count;
 		char fix;
-		puts("Where do you want to add an empty lines:");
+		puts("Where do you want to add empty lines:");
 		scanf("%d", &line_number);
 		while ((fix = getchar())!='\n'&&fix!=EOF);
 		puts("How many lines do you want to add:");
