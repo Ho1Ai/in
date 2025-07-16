@@ -493,11 +493,71 @@ int command__afln (fileState* workspace_file, int line, int count) {
 
 
 int command__rml (fileState* workspace_file, int line) {
+	if (line < 0) {
+		printf("You can't remove lines before start");
+		return 1;
+	}
+
+	if (line >= workspace_file->len) {
+		printf("You can't remove lines after end\n");
+		return 1;
+	}
+
+	for (int i = line; i < workspace_file->len-1; i++) {
+		free(workspace_file->flc[i]);
+		workspace_file->flc[i] = malloc(sizeof(char));
+		int new_len = 1;
+		for (int j = 0; j<strlen(workspace_file->flc[i+1]); j++) {
+			workspace_file->flc[i] = realloc(workspace_file->flc[i], sizeof(char)*new_len);
+			workspace_file->flc[i][j] = workspace_file->flc[i+1][j];
+			new_len++;
+		}
+		workspace_file->flc[i] = realloc(workspace_file->flc[i], sizeof(char)*new_len);
+		workspace_file->flc[i][new_len-1] = '\0';
+
+	}
+	
+	free(workspace_file->flc[workspace_file->len-1]);
+	workspace_file->len--;
+	workspace_file->flc = realloc(workspace_file->flc, sizeof(char*)*workspace_file->len);
+
 	return 0;
 }
 
 
-int command__rmln (fileState* workspace_file, int from_line, int through_line) {
+int command__rmln (fileState* workspace_file, int from_line, int number_of_lines) {
+	
+	int count_of_itterations = number_of_lines;
+
+	if (from_line < 0) {
+		puts("Start line can't be less than 0\n");
+		return 1;
+	}
+
+	if (number_of_lines<0) {
+		puts("Number of lines can't be less than 0\n");
+	}
+
+	if(from_line+number_of_lines>=workspace_file->len) {
+		count_of_itterations = workspace_file->len-from_line;
+		//printf("%d\n", count_of_itterations);
+	}
+
+	int exec_state = 0;
+
+	while(count_of_itterations>0) {
+		exec_state = command__rml(workspace_file, from_line);
+		if (exec_state != 0) {
+			printf("Function returned an error on itteration: %d\n", count_of_itterations);
+			return 1;
+		}
+		count_of_itterations--;
+	}
+
+
+
+	int accumulator = 0;
+	int state = 0;
 	return 0;
 }
 
@@ -629,6 +689,39 @@ uint8_t commandInput(fileState* workspace_file, char* input){
 			printf("Something went wrong... please, try again\n");
 		}
 		state = 1;
+	}
+
+	if(strcmp(input, "rml")==0) {
+		int line;
+		char fix;
+		printf("Which line do you wanna remove:\n");
+		scanf("%d", &line);
+		while((fix = getchar())!='\n' && fix != EOF);
+		int result = command__rml(workspace_file, line);
+		if (result != 0) {
+			puts("Execution canceled.\n");
+		} else {
+			puts("Success");
+		}
+		state = 1;
+	}
+
+	if(strcmp(input, "rmln")==0) {
+		state = 1;
+		int line, count;
+		char fix;
+		puts("From which line do you wanna remove:\n");
+		scanf("%d", &line);
+		while((fix = getchar())!='\n' && fix != EOF);
+		puts("How many lines do you wanna remove");
+		scanf("%d", &count);
+		while((fix = getchar())!='\n' && fix != EOF);
+		int exec_result = command__rmln(workspace_file, line, count);
+		if (exec_result == 0) {
+			puts("Success!\n");
+		} else {
+			puts("An error occurred. Execution canceled.\n");
+		}
 	}
 
 	if(strcmp(input, "draw")==0) {
