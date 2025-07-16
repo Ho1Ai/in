@@ -91,6 +91,24 @@ uint8_t command__c() {
 
 uint8_t command__rma(fileState* workspace_file, int line, int from) {
 	//printf("%d\n", strlen(workspace_file->flc[line]));
+	if(line < 0) {
+		printf("Line number must be between 0 and %d, but you have entered %d. Execution failed\n", workspace_file->len-1, line);
+		return 1;
+	}
+	if(line >= workspace_file->len) {
+		printf("Line number is too high. You have only %d lines. Execution failed\n", workspace_file->len);
+		return 1;
+	}
+
+	if (from >= strlen(workspace_file->flc[line])) {
+		printf("Entered number is higher, than line length. Current line length is: %d\n", strlen(workspace_file->flc[line]));
+		return 1;
+	}
+
+	if (from < 0) {
+		printf("Start position can't be less, than 0\n");
+	}
+
 	if(from<strlen(workspace_file->flc[line])){
 		workspace_file->flc[line][from] = '\0';
 		char* tmp_line=malloc(sizeof(char*)*((strlen(workspace_file->flc[line])+1)));
@@ -284,7 +302,7 @@ uint8_t command__rm(fileState* workspace_file, int line, int from, int through) 
 	//puts(new_line);
 	free(workspace_file->flc[line]);
 	
-	printf("%d\n%d\n", sizeof(new_line), sizeof(workspace_file->flc[line]));
+	//printf("%d\n%d\n", sizeof(new_line), sizeof(workspace_file->flc[line]));
 	workspace_file->flc[line]=new_line;
 	//printf("result: %s\n", new_line);
 	//printf("%d", strlen(workspace_file->flc[line]));
