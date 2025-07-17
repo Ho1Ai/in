@@ -20,6 +20,8 @@ begin
 	pages_content[9]:='draw (indev command)'+#13#10+'Outputs full file content. Does not need any arguments'+#10+'Example:'+#10#10+'> draw'+#10+'0. Some'+#10+'1. text'+#10+'2. is'+#10+'3. here'+#10+'4. No matter what text btw';
 	pages_content[10]:='afl <=> add fracture line' + #13#10 + 'Requires line number, where you wanna create empty line. Creates empty line'+#10+'Example:'+#10+'> afl'+#10+'Where do you want to add an empty line:'+#10#10+'2 {e.g.}'+#10+'Added succesfully!';
 	pages_content[11]:='afln <=> add fracture lines (number of lines)'+#13#10+'Requires line number and number of empty lines. Same to afl (look at the previous page (afl))';
+	pages_content[12]:='rml <=> remove line'+#13#10+'Requires number of line, which you wanna remove'+#10+'Example:'+#10+'> rml'+#10+'Which line do you wanna remove:'+#10+'2 {e.g.}'+#10+'Success! (or an error if you are tryna remove line with number, which one is less than 0 or greater than number of last line)';
+	pages_content[13]:='rmln <=> remove lines (number of lines)'+#13#10+'Requires line number and how many lines you wanna remove (it uses a small counter inside). Same to rml (check rml page), but also requires number, which shows, how many lines do you wanna remove';
 	writeln('page: ', page_number);
 	writeln(pages_content[0]);
 	writeln(#13#10#10);
