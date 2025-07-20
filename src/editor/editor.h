@@ -8,9 +8,11 @@
 typedef struct {
 	int line;
 	int linePosition;
+	int tabState;
 } editorState;
 
 typedef struct {
+	int helper__tabState;
 	char* filename;
 	char** flc; //flc - File Lines Content
 	int edited;

@@ -21,11 +21,13 @@
 //3. zita - variable, which means offset (also as xi)
 
 typedef struct {
-	int line;
-	int linePosition;
+	//int line;
+	//int linePosition;
+	int tabState;
 } editorState;
 
 typedef struct {
+	int helper__tabState;
 	int len;
 	char* filename;
 	char** flc;
@@ -204,6 +206,15 @@ uint8_t command__ins(fileState* workspace_file, int line, int position) {
 	xi = 0;
 	new_len = 1;
 	char* appending_line=malloc(sizeof(char));
+	
+	if(position == 0 && strlen(workspace_file->flc[line])==0){
+		for(int counter = 0; counter < workspace_file->helper__tabState; counter++);{
+			appending_line = realloc(appending_line, sizeof(char)*new_len);
+			appending_line[xi] = '\t';
+			xi++;
+			new_len++;
+		}
+	}
 
 	while((input_thread_chars = getchar())!=EOF && input_thread_chars!='\n'){
 		appending_line = realloc(appending_line, sizeof(char) * new_len);
@@ -394,7 +405,7 @@ uint8_t command__w(fileState* workspace_file) {
 
 
 uint8_t command__h() {
-	printf("This list of commands shows small list of commands and some things, which these commands need, but doesn't show more info, than this, because else this list won't fit viewport on some machines. In order to see better help menu, write mh and visit github or start in-mh application\n\nlist:\n\nh - show this menu\n\nw - write file.\t{after writing this command and pressing enter} [o/ae/aenti - overwrite/append/append with no tag input]\n\nq - quit\n\nrm - remove area.\t{after writing this command and pressing enter} [line] [start position] [end position]\nrma - remove after.\t{after writing this command and pressing enter} [line] [start position]\nrml - remove line.\t{after writing this command and pressing enter} [line]\nrmln - remove lines (number of lines)\t{after writing this command and pressing enter} [line] [how many lines]\n\nins - insert.\t{after pressing enter} [line] [position]\t{after pressing enter} [line, which you wanna insert]\nafl - add fracture line.\t{after writing this command and pressing enter} [line]\nafln - add fracture lines (number of lines).\t{after writing this command and pressing } [line] [number of lines]\n");
+	printf("This list of commands shows small list of commands and some things, which these commands need, but doesn't show more info, than this, because else this list won't fit viewport on some machines. In order to see better help menu, write mh and visit github or start in-mh application\n\nlist:\n\nh - show this menu\nw - write file.\t{after writing this command and pressing enter} [o/ae/aenti - overwrite/append/append with no tag input]\nq - quit\ncfn - change file name.\t{after writing this command and pressing enter} [new file name]\n\nrm - remove area.\t{after writing this command and pressing enter} [line] [start position] [end position]\nrma - remove after.\t{after writing this command and pressing enter} [line] [start position]\nrml - remove line.\t{after writing this command and pressing enter} [line]\nrmln - remove lines (number of lines)\t{after writing this command and pressing enter} [line] [how many lines]\n\nins - insert.\t{after pressing enter} [line] [position]\t{after pressing enter} [line, which you wanna insert]\nafl - add fracture line.\t{after writing this command and pressing enter} [line]\nafln - add fracture lines (number of lines).\t{after writing this command and pressing } [line] [number of lines]\n");
 }
 
 
@@ -422,6 +433,55 @@ void debug_commands__draw(fileState* workspace_file){
 }
 
 
+
+int command__cfn(fileState* workspace_file) {
+	puts("What file name do you wanna set:");
+	
+	char* new_filename = malloc(sizeof(char));
+	int new_line_len = 1;
+	int xi = 0;
+	char input_thread_getter;
+
+	while((input_thread_getter = getchar())!=EOF && input_thread_getter!='\n') {
+		new_filename = realloc(new_filename, sizeof(char)*new_line_len);
+		new_filename[xi] = input_thread_getter;
+		new_line_len++;
+		xi++;
+	}
+	new_filename = realloc(new_filename, sizeof(char)*new_line_len);
+	new_filename[xi] = '\0';
+	
+
+	if(strlen(new_filename) == 0) {
+		puts("You can't save file with empty name!\n");
+		return 1;
+	}
+
+	
+
+	FILE* check_existence = fopen(new_filename,"r");
+	if(check_existence) {
+		puts("File with this name already exist. Do you wanna continue? The target file will be overwritten. [y/N]\n");
+		char tester;
+		scanf("%c", &tester);
+		char fix;
+		while((fix = getchar())!=EOF && fix !='\n');
+		if(tester == 'Y' || tester == 'y') {
+			puts("The execution will be continued, but after writing this file, everything in the target file (or better to say \"file with target name\") will be wiped. Be careful!\n");
+		} else {
+			puts("Execution canceled.\n");
+			return 0;
+		}
+		
+	}
+	
+	free(workspace_file->filename); // this stuff may be the main reason of segfault... maybe, I had better change one stuff in filename writing
+	workspace_file->filename = new_filename; //memory leak. Gonna fix it now
+	
+	
+
+	return 0;
+}
 
 
 
@@ -471,6 +531,33 @@ int command__afl(fileState* workspace_file, int line_number) {
 	workspace_file->len++;
 	return 0;
 	//printf("Added succesfully!\n");
+}
+
+
+
+
+int command__mktab (fileState* workspace_file) {
+	puts("Write '+', if you wanna increase count of tabs, or '-', if you wanna decrease it:");
+	char todo, fix;
+	scanf("%c", &todo);
+	while((fix = getchar())!= EOF && fix !='\n');
+	if(todo=='+') {
+		workspace_file->helper__tabState++;
+	} else if (todo == '-') {
+		if(workspace_file->helper__tabState<=0) {
+			workspace_file->helper__tabState = 0;
+			puts("Already minimum.\n");
+		} else {
+			workspace_file->helper__tabState--;
+		}
+	} else {
+		puts("Unrecognized option.\n");
+		return 1;
+	}
+	if(workspace_file->helper__tabState<0) {
+		workspace_file->helper__tabState = 0; // if someone had a bug and received 2147483647 tabs and added one in order to get -2147483648. Just a small bugfix, which was not needed
+	}
+	return 0;
 }
 
 
@@ -724,6 +811,22 @@ uint8_t commandInput(fileState* workspace_file, char* input){
 		}
 	}
 
+	if(strcmp(input, "cfn") == 0) {
+		int status = command__cfn(workspace_file);
+		if(status!=0) {
+			puts("An error occurred. Execution canceled.\n");
+		}
+		state = 1;
+	} 
+
+	if(strcmp(input, "mktab") == 0) {
+		int status = command__mktab(workspace_file);
+		if (status != 0) {
+			puts("An error occurred. Execution canceled.");
+		}
+		state = 1;
+	}
+
 	if(strcmp(input, "draw")==0) {
 		debug_commands__draw(workspace_file);
 		state=1;
@@ -738,6 +841,12 @@ uint8_t commandInput(fileState* workspace_file, char* input){
 }
 
 
+
+void init__ONSTART__filename_write(fileState* workspace_file, char* filename){
+	workspace_file->filename = malloc(sizeof(filename)+1);
+	strcpy(workspace_file->filename, filename);
+	workspace_file->filename[strlen(filename)] = '\0'; // line end;
+}
 
 
 
@@ -762,7 +871,8 @@ int initEditor(char* filename){
 	}
 	editorState inState;
 	fileState* open_file_state = (fileState*)malloc(sizeof(fileState)); // called like this only here, because everywhere else I use workspace_file instead
-	open_file_state->filename = filename;
+	open_file_state->helper__tabState = 0;
+	init__ONSTART__filename_write(open_file_state, filename);
 	open_file_state->len = 0;
 	//printf("%s", open_file_state->filename); // just a debug attempt
 	int filewrite_test = inInner__FILE_CONTENT_GETTER(open_file_state);
@@ -772,6 +882,7 @@ int initEditor(char* filename){
 		//printf("wrote something");
 		if(fgets(inp, 128, stdin)==NULL){
 			printf("^D\n");
+			freeMem(open_file_state);
 			free(open_file_state);
 			fclose(this_file);
 			return 0;
@@ -829,6 +940,7 @@ int inInner__FILE_CONTENT_GETTER(fileState* workspace_file) {
 
 void freeMem (fileState* workspace_file) {
 	int chk = 0;
+	free(workspace_file->filename);
 	while(chk<workspace_file->len) {
 		//printf("%s\t\t", workspace_file->flc[chk]);
 		free(workspace_file->flc[chk]);
