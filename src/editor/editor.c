@@ -207,15 +207,15 @@ uint8_t command__ins(fileState* workspace_file, int line, int position) {
 	new_len = 1;
 	char* appending_line=malloc(sizeof(char));
 	
-	if(position == 0 && strlen(workspace_file->flc[line])==0){
-		for(int counter = 0; counter < workspace_file->helper__tabState; counter++);{
+	if(startpos_fix == 0 && strlen(workspace_file->flc[line])==0){
+		for(int counter = 0; counter < workspace_file->helper__tabState; counter++){
 			appending_line = realloc(appending_line, sizeof(char)*new_len);
 			appending_line[xi] = '\t';
 			xi++;
 			new_len++;
 		}
 	}
-
+	
 	while((input_thread_chars = getchar())!=EOF && input_thread_chars!='\n'){
 		appending_line = realloc(appending_line, sizeof(char) * new_len);
 		appending_line[xi] = input_thread_chars;
@@ -405,7 +405,7 @@ uint8_t command__w(fileState* workspace_file) {
 
 
 uint8_t command__h() {
-	printf("This list of commands shows small list of commands and some things, which these commands need, but doesn't show more info, than this, because else this list won't fit viewport on some machines. In order to see better help menu, write mh and visit github or start in-mh application\n\nlist:\n\nh - show this menu\nw - write file.\t{after writing this command and pressing enter} [o/ae/aenti - overwrite/append/append with no tag input]\nq - quit\ncfn - change file name.\t{after writing this command and pressing enter} [new file name]\n\nrm - remove area.\t{after writing this command and pressing enter} [line] [start position] [end position]\nrma - remove after.\t{after writing this command and pressing enter} [line] [start position]\nrml - remove line.\t{after writing this command and pressing enter} [line]\nrmln - remove lines (number of lines)\t{after writing this command and pressing enter} [line] [how many lines]\n\nins - insert.\t{after pressing enter} [line] [position]\t{after pressing enter} [line, which you wanna insert]\nafl - add fracture line.\t{after writing this command and pressing enter} [line]\nafln - add fracture lines (number of lines).\t{after writing this command and pressing } [line] [number of lines]\n");
+	printf("This list of commands shows small list of commands and some things, which these commands need, but doesn't show more info, than this, because else this list won't fit viewport on some machines. In order to see better help menu, write mh and visit github or start in-mh application\n\nlist:\n\nh - show this menu\nw - write file.\t{after writing this command and pressing enter} [o/ae/aenti - overwrite/append/append with no tag input]\nq - quit\ncfn - change file name.\t{after writing this command and pressing enter} [new file name]\n\nrm - remove area.\t{after writing this command and pressing enter} [line] [start position] [end position]\nrma - remove after.\t{after writing this command and pressing enter} [line] [start position]\nrml - remove line.\t{after writing this command and pressing enter} [line]\nrmln - remove lines (number of lines)\t{after writing this command and pressing enter} [line] [how many lines]\n\nins - insert.\t{after pressing enter} [line] [position]\t{after pressing enter} [line, which you wanna insert]\nafl - add fracture line.\t{after writing this command and pressing enter} [line]\nafln - add fracture lines (number of lines).\t{after writing this command and pressing enter} [line] [number of lines]\nmktab - make tab\t{after writing this command and pressing enter} [+ (increase count) or - (decrease count)]");
 }
 
 
@@ -537,6 +537,7 @@ int command__afl(fileState* workspace_file, int line_number) {
 
 
 int command__mktab (fileState* workspace_file) {
+	printf("Current tabs count: %d\n", workspace_file->helper__tabState);
 	puts("Write '+', if you wanna increase count of tabs, or '-', if you wanna decrease it:");
 	char todo, fix;
 	scanf("%c", &todo);
