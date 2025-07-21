@@ -547,7 +547,7 @@ int command__mktab (fileState* workspace_file) {
 	} else if (todo == '-') {
 		if(workspace_file->helper__tabState<=0) {
 			workspace_file->helper__tabState = 0;
-			puts("Already minimum.\n");
+			puts("Already minimum (0 tabs).\n");
 		} else {
 			workspace_file->helper__tabState--;
 		}
