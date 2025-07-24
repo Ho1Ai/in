@@ -3,6 +3,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#include "./separator.h" // commands: separatableBySpace[type: int; arguments: char* input]; separateBySpace[type: char*; arguments: char* input]
+
 #define TRUE 1
 #define FALSE 0
 #define MAX_LINE_LENGTH 2048 //At the moment it will be enough to use 2kb lines
