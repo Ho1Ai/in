@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-int argToInteger(char* arg){
+int argToInteger(char* arg){ //in separator file, cuz it is mostly needed for separator nor for editor
 	int xi = 0;
 	int result = 0; // w/o negatives
 	int negative_result = 1; // -1 if negative

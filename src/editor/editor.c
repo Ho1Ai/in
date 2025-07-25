@@ -551,12 +551,19 @@ int command__afl(fileState* workspace_file, int line_number) {
 
 
 
-int command__mktab (fileState* workspace_file) {
-	printf("Current tabs count: %d\n", workspace_file->helper__tabState);
-	puts("Write '+', if you wanna increase count of tabs, or '-', if you wanna decrease it:");
+int command__mktab (fileState* workspace_file, char* optionally_added_argument) {
+	//printf("Current tabs count: %d\n", workspace_file->helper__tabState);
 	char todo, fix;
-	scanf("%c", &todo);
-	while((fix = getchar())!= EOF && fix !='\n');
+	
+	if(optionally_added_argument[0] == '+' || optionally_added_argument[0] == '-') {
+		todo = optionally_added_argument[0];
+	} else {
+		printf("Current tabs count: %d\n", workspace_file->helper__tabState);
+		puts("Write '+', if you wanna increase count of tabs, or '-', if you wanna decrease it:");
+		scanf("%c", &todo);
+		while((fix = getchar())!= EOF && fix !='\n');
+	}
+
 	if(todo=='+') {
 		workspace_file->helper__tabState++;
 	} else if (todo == '-') {
@@ -755,13 +762,18 @@ uint8_t commandInput(fileState* workspace_file, char* input, char** full_args_li
 		//command__out(workspace_file); // still not ready
 		char ch;
 		int start_line, end_line;
-		puts("Give positional arguments: first line, last line. Be careful: In text editor is currently using from-zero indexation, so 1st line has number 0, 2nd line has number 1, etc. If you wanna output full file, you should write -1 and -1 after two next questions\nFirst line: ");
-		scanf("%d", &start_line);
-		while ((ch=getchar())!='\n' &&ch!=EOF);
-		puts("Last line: ");
-		scanf("%d", &end_line);
-		while((ch=getchar())!='\n' && ch!=EOF);
-		putchar('\n');
+		if(argc-1 == 2) {
+			start_line = argToInteger(full_args_list[1]);
+			end_line = argToInteger(full_args_list[2]);
+		}else{
+			puts("Give positional arguments: first line, last line. Be careful: In text editor is currently using from-zero indexation, so 1st line has number 0, 2nd line has number 1, etc. If you wanna output full file, you should write -1 and -1 after two next questions\nFirst line: ");
+			scanf("%d", &start_line);
+			while ((ch=getchar())!='\n' &&ch!=EOF);
+			puts("Last line: ");
+			scanf("%d", &end_line);
+			while((ch=getchar())!='\n' && ch!=EOF);
+			putchar('\n');
+		}
 		//if (workspace_file->flc[start_line]) {
 		//	printf("it has read this stuff\n"); // but how?!
 		command__out(workspace_file, start_line, end_line);
@@ -781,10 +793,14 @@ uint8_t commandInput(fileState* workspace_file, char* input, char** full_args_li
 
 	if(strcmp(input, "afl")==0) {
 		int line_number;
-		puts("Where do you want to add an empty line:");
-		scanf("%d", &line_number);
-		char fix;
-		while((fix = getchar())!='\n' && fix !=EOF);
+		if(argc-1==1) {
+			line_number = argToInteger(full_args_list[1]);
+		} else {
+			puts("Where do you want to add an empty line:");
+			scanf("%d", &line_number);
+			char fix;
+			while((fix = getchar())!='\n' && fix !=EOF);
+		}
 		int check = command__afl(workspace_file,line_number);
 		if(check == 0) {
 			printf("Added succesfully\n");
@@ -796,14 +812,19 @@ uint8_t commandInput(fileState* workspace_file, char* input, char** full_args_li
 
 	if(strcmp(input, "afln")==0) {
 		int line_number, count;
-		char fix;
-		puts("Where do you want to add empty lines:");
-		scanf("%d", &line_number);
-		while ((fix = getchar())!='\n'&&fix!=EOF);
-		puts("How many lines do you want to add:");
-		scanf("%d", &count);
+		if(argc-1 == 2) {
+			line_number = argToInteger(full_args_list[1]);
+			count = argToInteger(full_args_list[2]);
+		} else {
+			char fix;
+			puts("Where do you want to add empty lines:");
+			scanf("%d", &line_number);
+			while ((fix = getchar())!='\n'&&fix!=EOF);
+			puts("How many lines do you want to add:");
+			scanf("%d", &count);
+			while((fix = getchar())!='\n' && fix != EOF);
+		}
 		int result = command__afln(workspace_file, line_number, count);
-		while((fix = getchar())!='\n' && fix != EOF);
 		if(result == 0) {
 			printf("Added successfully (%d lines)\n", count);
 		} else {
@@ -814,10 +835,14 @@ uint8_t commandInput(fileState* workspace_file, char* input, char** full_args_li
 
 	if(strcmp(input, "rml")==0) {
 		int line;
-		char fix;
-		printf("Which line do you wanna remove:\n");
-		scanf("%d", &line);
-		while((fix = getchar())!='\n' && fix != EOF);
+		if(argc-1==1){
+			line = argToInteger(full_args_list[1]);
+		} else {
+			char fix;
+			printf("Which line do you wanna remove:\n");
+			scanf("%d", &line);
+			while((fix = getchar())!='\n' && fix != EOF);
+		}
 		int result = command__rml(workspace_file, line);
 		if (result != 0) {
 			puts("Execution canceled.\n");
@@ -830,13 +855,18 @@ uint8_t commandInput(fileState* workspace_file, char* input, char** full_args_li
 	if(strcmp(input, "rmln")==0) {
 		state = 1;
 		int line, count;
-		char fix;
-		puts("From which line do you wanna remove:\n");
-		scanf("%d", &line);
-		while((fix = getchar())!='\n' && fix != EOF);
-		puts("How many lines do you wanna remove");
-		scanf("%d", &count);
-		while((fix = getchar())!='\n' && fix != EOF);
+		if(argc-1==2) {
+			line = argToInteger(full_args_list[1]);
+			count = argToInteger(full_args_list[2]);
+		} else {
+			char fix;
+			puts("From which line do you wanna remove:\n");
+			scanf("%d", &line);
+			while((fix = getchar())!='\n' && fix != EOF);
+			puts("How many lines do you wanna remove");
+			scanf("%d", &count);
+			while((fix = getchar())!='\n' && fix != EOF);
+		}
 		int exec_result = command__rmln(workspace_file, line, count);
 		if (exec_result == 0) {
 			puts("Success!\n");
@@ -846,7 +876,7 @@ uint8_t commandInput(fileState* workspace_file, char* input, char** full_args_li
 	}
 
 	if(strcmp(input, "cfn") == 0) {
-		int status = command__cfn(workspace_file);
+		int status = command__cfn(workspace_file); // add one more argument
 		if(status!=0) {
 			puts("An error occurred. Execution canceled.\n");
 		}
@@ -862,7 +892,11 @@ uint8_t commandInput(fileState* workspace_file, char* input, char** full_args_li
 	}
 
 	if(strcmp(input, "mktab") == 0) {
-		int status = command__mktab(workspace_file);
+		char* todo;
+		if(argc-1 == 1) {
+			todo = full_args_list[1];
+		}
+		int status = command__mktab(workspace_file, todo);
 		if (status != 0) {
 			puts("An error occurred. Execution canceled.");
 		}
