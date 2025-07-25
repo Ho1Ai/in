@@ -12,6 +12,8 @@ int separatableBySpace(char* input){ //return 1-4 - impossible (1 is for command
 	}	
 
 
+	//printf("%d %d\n", (input[strlen(input)-1] == ' '/* && input[strlen(input)-2]==' '*/), strlen(input));
+
 	if(input[strlen(input)-1] == ' ' && input[strlen(input)-2]==' ') {
 		return 3; //well, if there is so many spaces, it will drop 4th error anyway
 	} // yeah, logically it is incorrect to do this stuff here, cuz it doesn't work at all, by the way, lmao, but let it be. These codes I'm gonna use only in order to catch errors
