@@ -2,6 +2,30 @@
 #include <stdlib.h>
 #include <string.h>
 
+int argToInteger(char* arg){
+	int xi = 0;
+	int result = 0; // w/o negatives
+	int negative_result = 1; // -1 if negative
+	if(arg[0]=='-'){
+		xi++;
+
+		negative_result = -1;
+	}
+
+	//printf("line len: %d\n", strlen(arg));
+
+	while(arg[xi] && xi<strlen(arg)){
+		//printf("%d\n", atoi(&arg[xi]));
+		result*=10;
+		result+=atoi(&arg[xi]);
+		xi++;
+	}
+
+	//printf("got: %d\n", result);
+
+	return result*negative_result;
+}
+
 int separatableBySpace(char* input){ //return 1-4 - impossible (1 is for command only (no spaces), 2 is for spaces in the beggining, 3 is for many spaces in the end, 4 - there is too many spaces as a separator somewhere), return 0 - possible
 	if(strcspn(input, " ") == strlen(input)){
 		return 1;
@@ -12,7 +36,7 @@ int separatableBySpace(char* input){ //return 1-4 - impossible (1 is for command
 	}	
 
 
-	//printf("%d %d\n", (input[strlen(input)-1] == ' '/* && input[strlen(input)-2]==' '*/), strlen(input));
+	//printf("%d %d\n", (input[strlen(input)-1] == ' ' && input[strlen(input)-2]==' '), strlen(input));
 
 	if(input[strlen(input)-1] == ' ' && input[strlen(input)-2]==' ') {
 		return 3; //well, if there is so many spaces, it will drop 4th error anyway

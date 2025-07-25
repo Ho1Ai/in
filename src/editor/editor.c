@@ -665,8 +665,9 @@ int command__rmln (fileState* workspace_file, int from_line, int number_of_lines
 }
 
 
-uint8_t commandInput(fileState* workspace_file, char* input){
+uint8_t commandInput(fileState* workspace_file, char* input, char** full_args_list, int argc){
 	uint8_t state = 0;
+
 	if(strcmp(input, "q")==0){
 		printf("Bye!\n");
 		return QUIT_CODE;
@@ -684,15 +685,20 @@ uint8_t commandInput(fileState* workspace_file, char* input){
 
 	if (strcmp(input, "ins")==0) {
 		int line_num, startpos;
-		char fix;
-		printf("Give positional arguments: line number, from position\n");
-		printf("line number:\n");
-		scanf("%d", &line_num);
-		while((fix=getchar())!='\n' && fix != EOF);
-		printf("start position:\n");
-		scanf("%d", &startpos);
-		while((fix=getchar())!='\n' && fix != EOF);
-
+		
+		if(argc-1 == 2) {
+			line_num = argToInteger(full_args_list[1]);
+			startpos=argToInteger(full_args_list[2]);
+		} else {
+			char fix;
+			printf("Give positional arguments: line number, from position\n");
+			printf("line number:\n");
+			scanf("%d", &line_num);
+			while((fix=getchar())!='\n' && fix != EOF);
+			printf("start position:\n");
+			scanf("%d", &startpos);
+			while((fix=getchar())!='\n' && fix != EOF);
+		}
 		command__ins(workspace_file, line_num, startpos);
 
 		state = 1;
@@ -700,32 +706,44 @@ uint8_t commandInput(fileState* workspace_file, char* input){
 
 	if (strcmp(input, "rma")==0){
 		int line, from_pos;
-		char ch;
-		puts("Give positional arguments: line number and from which position you wanna remove text\n");
-		puts("Line number: ");
-		scanf("%d", &line);
-		while ((ch=getchar())!='\n' && ch != EOF);
-		puts("Position (remember, that 1st char in the line has 0th position, 2nd char has 1st position, 3rd has 2nd, 4th has 3rd, etc. Position means from which position line will be wiped): ");
-		scanf("%d", &from_pos);
-		while((ch=getchar())!='\n' && ch!=EOF);
+		if(argc-1 == 2) {
+			line = argToInteger(full_args_list[1]);
+			from_pos = argToInteger(full_args_list[2]);
+		} else {
+			char ch;
+			puts("Give positional arguments: line number and from which position you wanna remove text\n");
+			puts("Line number: ");
+			scanf("%d", &line);
+			while ((ch=getchar())!='\n' && ch != EOF);
+			puts("Position (remember, that 1st char in the line has 0th position, 2nd char has 1st position, 3rd has 2nd, 4th has 3rd, etc. Position means from which position line will be wiped): ");
+			scanf("%d", &from_pos);
+			while((ch=getchar())!='\n' && ch!=EOF);
+		}
 		command__rma(workspace_file, line, from_pos);
 		state = 1;
 	}
 
 	if (strcmp(input, "rm")==0) {
 		state=1;
-		printf("Give positional arguments: line number, start position, last position\n");
 		int line_num, start_pos, end_pos;
-		char ch;
-		puts("line number: ");
-		scanf("%d", &line_num);
-		while((ch=getchar()) != '\n' && ch != EOF);
-		puts("start position: ");
-		scanf("%d", &start_pos);
-		while((ch=getchar()) != '\n' && ch != EOF);
-		puts("end position");
-		scanf("%d", &end_pos);
-		while((ch=getchar()) != '\n' && ch != EOF);
+		if(argc-1==3){
+			line_num = argToInteger(full_args_list[1]);
+			start_pos = argToInteger(full_args_list[2]);
+			end_pos = argToInteger(full_args_list[3]);
+		}else{
+			printf("Give positional arguments: line number, start position, last position\n");
+
+			char ch;
+			puts("line number: ");
+			scanf("%d", &line_num);
+			while((ch=getchar()) != '\n' && ch != EOF);
+			puts("start position: ");
+			scanf("%d", &start_pos);
+			while((ch=getchar()) != '\n' && ch != EOF);
+			puts("end position");
+			scanf("%d", &end_pos);
+			while((ch=getchar()) != '\n' && ch != EOF);
+		}
 		command__rm(workspace_file, line_num, start_pos, end_pos); //still not ready
 		
 		// BUG: it doesn't set state to 1... To be fixed!
@@ -913,24 +931,46 @@ int initEditor(char* filename){
 			}
 			return 0;
 		}else{
+			inp[strcspn(inp,"\n")]=0; // firstly it was somewhere else... I know, that this stuff is the only stuff is needed for separator, but... I forgot about it, lmao
 			int checkSeparatorPosibility = separatableBySpace(inp);
 			printf("separation posibility check status: %d\n",checkSeparatorPosibility);
-			char** separator_output_thread;
-			int separator_size;
+			//char** separator_output_thread = malloc(sizeof(char*));
+			int separator_size=0; //same to args count (argc)
+			char** separated_inputs = malloc(sizeof(char*));
+			int length_increaser = 1;
 			if(checkSeparatorPosibility==0) {
 				//separateBySpace(inp, separator_output_thread);
+				int xi = 0;
 				puts("the command can be separated\n");
+				char* new_line = strtok(inp, " ");
+				
+				separated_inputs[0] = new_line;
+				length_increaser++;
+				separated_inputs = realloc(separated_inputs, length_increaser*sizeof(char*));
+				xi++;
+				separator_size++;
+				while(new_line = strtok(NULL, " ")){
+					separated_inputs = realloc(separated_inputs, sizeof(char*)*length_increaser);
+					separated_inputs[xi] = new_line;
+					length_increaser++;
+					xi++;
+					separator_size++;
+				}
 			} else {
 				//separator_output_thread = getFirstWordBySeparator(inp);
 				//separator_output_thread = getFirstWordBySeparator(inp, separator_output_thread);
 				//separator_size = 1;
 				//printf("%s", separator_output_thread[0]);
 				puts("the command can't be separated\n");
+				char* new_line = strtok(inp, " ");
+				separated_inputs[0] = new_line;
+				separator_size = 1;
+				//puts(new_line);
 			}
 			//printf("wrote something");
-			inp[strcspn(inp,"\n")]=0;
-			uint8_t inputStatus = commandInput(open_file_state, inp);
-			//emptyInput(separator_size, separator_output_thread);
+			uint8_t inputStatus = commandInput(open_file_state, separated_inputs[0], separated_inputs, separator_size);//why separated_inputs[0] on the second position: it is easier to keep something, that doesn't take something new. I could place "commandInput(open_file_state, separated_inputs)", but then I would replace `strcmp(input, "ins")` with `strcmp(args[0], "ins")` everywhere. At the moment it is easier to keep something like this, but in the future I'm gonna replace this stuff anyway, cuz I have many ideas for this stuff
+			//emptyInput(separator_size, separated_inputs);
+			free(separated_inputs); // I didn't malloc for each line, so, I guess, it will be enough to place something like this stuff here.
 			if(inputStatus != 100) {
 				break;
 		}}
