@@ -3,7 +3,9 @@
 #include <string.h>
 #ifndef SEPARATOR
 #define SEPARATOR
-char* separateBySpace(char* input);
+int separateBySpace(char* input, char** output_thread);
+
+char** getFirstWordBySeparator(char* input, char** output_thread);
 
 int separatableBySpace(char* input);
 #endif

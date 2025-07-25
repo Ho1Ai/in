@@ -4,6 +4,7 @@
 #include <stdlib.h>
 
 #include "./separator.h" // commands: separatableBySpace[type: int; arguments: char* input]; separateBySpace[type: char*; arguments: char* input]
+#include "./separator_models.h"
 
 #define TRUE 1
 #define FALSE 0
@@ -40,6 +41,18 @@ void cleanScreen() {
 	system("clear");
 }
 
+
+
+
+void emptyInput(int end_size, char** inp_data) {
+	int xi = 0;
+/*	while(xi<end_size) {
+		free(inp_data[xi]);
+		xi++;
+	}*/
+	free(inp_data);
+	//free(end_size);
+}
 
 
 
@@ -407,7 +420,7 @@ uint8_t command__w(fileState* workspace_file) {
 
 
 uint8_t command__h() {
-	printf("This list of commands shows small list of commands and some things, which these commands need, but doesn't show more info, than this, because else this list won't fit viewport on some machines. In order to see better help menu, write mh and visit github or start in-mh application\n\nlist:\n\nh - show this menu\nw - write file.\t{after writing this command and pressing enter} [o/ae/aenti - overwrite/append/append with no tag input]\nq - quit\ncfn - change file name.\t{after writing this command and pressing enter} [new file name]\n\nrm - remove area.\t{after writing this command and pressing enter} [line] [start position] [end position]\nrma - remove after.\t{after writing this command and pressing enter} [line] [start position]\nrml - remove line.\t{after writing this command and pressing enter} [line]\nrmln - remove lines (number of lines)\t{after writing this command and pressing enter} [line] [how many lines]\n\nins - insert.\t{after pressing enter} [line] [position]\t{after pressing enter} [line, which you wanna insert]\nafl - add fracture line.\t{after writing this command and pressing enter} [line]\nafln - add fracture lines (number of lines).\t{after writing this command and pressing enter} [line] [number of lines]\nmktab - make tab\t{after writing this command and pressing enter} [+ (increase count) or - (decrease count)]");
+	printf("This list of commands shows small list of commands and some things, which these commands need, but doesn't show more info, than this, because else this list won't fit viewport on some machines. In order to see better help menu, write mh and visit github or start in-mh application\n\nlist:\n\nh - show this menu\nw - write file.\t{after writing this command and pressing enter} [o/ae/aenti - overwrite/append/append with no tag input]\nq - quit\ncfn - change file name.\t{after writing this command and pressing enter} [new file name]\n\nrm - remove area.\t{after writing this command and pressing enter} [line] [start position] [end position]\nrma - remove after.\t{after writing this command and pressing enter} [line] [start position]\nrml - remove line.\t{after writing this command and pressing enter} [line]\nrmln - remove lines (number of lines)\t{after writing this command and pressing enter} [line] [how many lines]\n\nins - insert.\t{after pressing enter} [line] [position]\t{after pressing enter} [line, which you wanna insert]\nafl - add fracture line.\t{after writing this command and pressing enter} [line]\nafln - add fracture lines (number of lines).\t{after writing this command and pressing enter} [line] [number of lines]\nmktab - make tab\t{after writing this command and pressing enter} [+ (increase count) or - (decrease count)]\n");
 }
 
 
@@ -822,6 +835,14 @@ uint8_t commandInput(fileState* workspace_file, char* input){
 		state = 1;
 	} 
 
+	if(strcmp(input, "SEPARATOR") == 0) {
+		//separateBySpace(input);
+		//printf("Separator success!\n%s - %s - %s\n");
+		printf("Separator success!\n");
+
+		state = 1;
+	}
+
 	if(strcmp(input, "mktab") == 0) {
 		int status = command__mktab(workspace_file);
 		if (status != 0) {
@@ -887,14 +908,31 @@ int initEditor(char* filename){
 			printf("^D\n");
 			freeMem(open_file_state);
 			free(open_file_state);
-			fclose(this_file);
+			if(file_existence == 1) {
+				fclose(this_file); // yeah, if there is no file, so what will it close? Absolutely nothing. Segfault was caused by this stuff
+			}
 			return 0;
 		}else{
-		//printf("wrote something");
-		inp[strcspn(inp,"\n")]=0;
-		uint8_t inputStatus = commandInput(open_file_state, inp);
-		if(inputStatus != 100) {
-			break;
+			int checkSeparatorPosibility = separatableBySpace(inp);
+			printf("separation posibility check status: %d\n",checkSeparatorPosibility);
+			char** separator_output_thread;
+			int separator_size;
+			if(checkSeparatorPosibility==0) {
+				//separateBySpace(inp, separator_output_thread);
+				puts("the command can be separated\n");
+			} else {
+				//separator_output_thread = getFirstWordBySeparator(inp);
+				//separator_output_thread = getFirstWordBySeparator(inp, separator_output_thread);
+				//separator_size = 1;
+				//printf("%s", separator_output_thread[0]);
+				puts("the command can't be separated\n");
+			}
+			//printf("wrote something");
+			inp[strcspn(inp,"\n")]=0;
+			uint8_t inputStatus = commandInput(open_file_state, inp);
+			//emptyInput(separator_size, separator_output_thread);
+			if(inputStatus != 100) {
+				break;
 		}}
 	}
 	
