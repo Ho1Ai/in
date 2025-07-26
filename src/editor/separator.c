@@ -2,6 +2,43 @@
 #include <stdlib.h>
 #include <string.h>
 
+int getOneNum(char symbol) {
+	int result;
+	switch (symbol) {
+		case '1':
+			result = 1;
+			break;
+		case '2':
+			result = 2;
+			break;
+		case '3':
+			result = 3;
+			break;
+		case '4':
+			result = 4;
+			break;
+		case '5':
+			result = 5;
+			break;
+		case '6':
+			result = 6;
+			break;
+		case '7':
+			result = 7;
+			break;
+		case '8':
+			result = 8;
+			break;
+		case '9':
+			result = 9;
+			break;
+		default: // if the symbol is a char, it will return 0, cuz it is not a number
+			result = 0;
+			break;
+	}
+	return result;
+}
+
 int argToInteger(char* arg){ //in separator file, cuz it is mostly needed for separator nor for editor
 	int xi = 0;
 	int result = 0; // w/o negatives
@@ -17,7 +54,7 @@ int argToInteger(char* arg){ //in separator file, cuz it is mostly needed for se
 	while(arg[xi] && xi<strlen(arg)){
 		//printf("%d\n", atoi(&arg[xi]));
 		result*=10;
-		result+=atoi(&arg[xi]);
+		result+=getOneNum(arg[xi]);
 		xi++;
 	}
 
@@ -27,11 +64,16 @@ int argToInteger(char* arg){ //in separator file, cuz it is mostly needed for se
 }
 
 int separatableBySpace(char* input){ //return 1-4 - impossible (1 is for command only (no spaces), 2 is for spaces in the beggining, 3 is for many spaces in the end, 4 - there is too many spaces as a separator somewhere), return 0 - possible
+	if(strcmp(input, "")==0 || input[0] == ' '){
+		return 99;
+	}
+
 	if(strcspn(input, " ") == strlen(input)){
 		return 1;
 	}
 
 	if(strcspn(input, " ")==0) {
+		//printf("BAD INPUT\n");
 		return 2;
 	}	
 

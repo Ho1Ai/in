@@ -339,31 +339,39 @@ uint8_t command__rm(fileState* workspace_file, int line, int from, int through) 
 
 
 
-uint8_t command__w(fileState* workspace_file) {
-	char* task = malloc(sizeof(char));
+uint8_t command__w(fileState* workspace_file, char* possible_argument, int argument_existence) {
+	char* task;
 	char char_buffer;
 
-	int len = 1;
-	int xi = 0;
-	int can_proceed = TRUE;
+	if(argument_existence==1) {
+		//free(task);
+		task = possible_argument;
+		//puts("there is a possible argument here\n");
+	} else {
+		task = malloc(sizeof(char));
+		int len = 1;
+		int xi = 0;
+		int can_proceed = TRUE;
 	
-	puts("How you wanna write changes? write o, ae or aenti (overwrite, append, append with no tag input):");
+		puts("How you wanna write changes? write o, ae or aenti (overwrite, append, append with no tag input):");
 	
-	while ((char_buffer = getchar())!=EOF) {
-		if(char_buffer == '\n') {
-			char_buffer = '\0';
-			can_proceed = FALSE;
-		}
-		task = realloc(task, sizeof(char)*len);
-		task[xi] = char_buffer;
-		len++;
-		xi++;
-		if(can_proceed != TRUE){
-			break;
+		while ((char_buffer = getchar())!=EOF) {
+			if(char_buffer == '\n') {
+				char_buffer = '\0';
+				can_proceed = FALSE;
+			}
+			task = realloc(task, sizeof(char)*len);
+			task[xi] = char_buffer;
+			len++;
+			xi++;
+			if(can_proceed != TRUE){
+				break;
+			}
 		}
 	}
 
 	if (strcmp(task, "o") == 0) {
+		
 		printf("Overwriting file...\n");
 		FILE* file_out_stream = fopen(workspace_file->filename,"w");
 		char* final_file = malloc(sizeof(char));
@@ -411,7 +419,9 @@ uint8_t command__w(fileState* workspace_file) {
 	}
 
 	//printf("%s\n", task);
-	free(task);
+	if(argument_existence == 0) {
+		free(task);
+	}
 }
 
 
@@ -450,9 +460,9 @@ void debug_commands__draw(fileState* workspace_file){
 
 
 int command__cfn(fileState* workspace_file) {
+	char* new_filename;
 	puts("What file name do you wanna set:");
-	
-	char* new_filename = malloc(sizeof(char));
+	new_filename = malloc(sizeof(char));
 	int new_line_len = 1;
 	int xi = 0;
 	char input_thread_getter;
@@ -681,7 +691,13 @@ uint8_t commandInput(fileState* workspace_file, char* input, char** full_args_li
 	}
 
 	if (strcmp(input, "w")==0) {
-		command__w(workspace_file);
+		char* todo;
+		int arg_existence = 0;
+		if(argc-1>=1) {
+			todo = full_args_list[1];
+			arg_existence = 1;
+		}
+		command__w(workspace_file, todo, arg_existence);
 		state = 1;
 	} 
 
@@ -693,7 +709,7 @@ uint8_t commandInput(fileState* workspace_file, char* input, char** full_args_li
 	if (strcmp(input, "ins")==0) {
 		int line_num, startpos;
 		
-		if(argc-1 == 2) {
+		if(argc-1 >= 2) {
 			line_num = argToInteger(full_args_list[1]);
 			startpos=argToInteger(full_args_list[2]);
 		} else {
@@ -713,7 +729,7 @@ uint8_t commandInput(fileState* workspace_file, char* input, char** full_args_li
 
 	if (strcmp(input, "rma")==0){
 		int line, from_pos;
-		if(argc-1 == 2) {
+		if(argc-1 >= 2) {
 			line = argToInteger(full_args_list[1]);
 			from_pos = argToInteger(full_args_list[2]);
 		} else {
@@ -733,7 +749,7 @@ uint8_t commandInput(fileState* workspace_file, char* input, char** full_args_li
 	if (strcmp(input, "rm")==0) {
 		state=1;
 		int line_num, start_pos, end_pos;
-		if(argc-1==3){
+		if(argc-1>=3){
 			line_num = argToInteger(full_args_list[1]);
 			start_pos = argToInteger(full_args_list[2]);
 			end_pos = argToInteger(full_args_list[3]);
@@ -762,7 +778,7 @@ uint8_t commandInput(fileState* workspace_file, char* input, char** full_args_li
 		//command__out(workspace_file); // still not ready
 		char ch;
 		int start_line, end_line;
-		if(argc-1 == 2) {
+		if(argc-1 >= 2) {
 			start_line = argToInteger(full_args_list[1]);
 			end_line = argToInteger(full_args_list[2]);
 		}else{
@@ -793,7 +809,7 @@ uint8_t commandInput(fileState* workspace_file, char* input, char** full_args_li
 
 	if(strcmp(input, "afl")==0) {
 		int line_number;
-		if(argc-1==1) {
+		if(argc-1>=1) {
 			line_number = argToInteger(full_args_list[1]);
 		} else {
 			puts("Where do you want to add an empty line:");
@@ -812,7 +828,7 @@ uint8_t commandInput(fileState* workspace_file, char* input, char** full_args_li
 
 	if(strcmp(input, "afln")==0) {
 		int line_number, count;
-		if(argc-1 == 2) {
+		if(argc-1 >= 2) {
 			line_number = argToInteger(full_args_list[1]);
 			count = argToInteger(full_args_list[2]);
 		} else {
@@ -835,7 +851,7 @@ uint8_t commandInput(fileState* workspace_file, char* input, char** full_args_li
 
 	if(strcmp(input, "rml")==0) {
 		int line;
-		if(argc-1==1){
+		if(argc-1>=1){
 			line = argToInteger(full_args_list[1]);
 		} else {
 			char fix;
@@ -855,7 +871,7 @@ uint8_t commandInput(fileState* workspace_file, char* input, char** full_args_li
 	if(strcmp(input, "rmln")==0) {
 		state = 1;
 		int line, count;
-		if(argc-1==2) {
+		if(argc-1>=2) {
 			line = argToInteger(full_args_list[1]);
 			count = argToInteger(full_args_list[2]);
 		} else {
@@ -876,6 +892,12 @@ uint8_t commandInput(fileState* workspace_file, char* input, char** full_args_li
 	}
 
 	if(strcmp(input, "cfn") == 0) {
+		int arg_existence = 0;
+		char* todo;
+		if(argc-1 == 1) {
+			todo = full_args_list[1];
+			arg_existence = 1;
+		}
 		int status = command__cfn(workspace_file); // add one more argument
 		if(status!=0) {
 			puts("An error occurred. Execution canceled.\n");
@@ -893,8 +915,10 @@ uint8_t commandInput(fileState* workspace_file, char* input, char** full_args_li
 
 	if(strcmp(input, "mktab") == 0) {
 		char* todo;
+		//int arg_existence = 0;
 		if(argc-1 == 1) {
 			todo = full_args_list[1];
+			//arg_existence = 1;
 		}
 		int status = command__mktab(workspace_file, todo);
 		if (status != 0) {
@@ -967,7 +991,7 @@ int initEditor(char* filename){
 		}else{
 			inp[strcspn(inp,"\n")]=0; // firstly it was somewhere else... I know, that this stuff is the only stuff is needed for separator, but... I forgot about it, lmao
 			int checkSeparatorPosibility = separatableBySpace(inp);
-			printf("separation posibility check status: %d\n",checkSeparatorPosibility);
+			//printf("separation posibility check status: %d\n",checkSeparatorPosibility);
 			//char** separator_output_thread = malloc(sizeof(char*));
 			int separator_size=0; //same to args count (argc)
 			char** separated_inputs = malloc(sizeof(char*));
@@ -975,7 +999,7 @@ int initEditor(char* filename){
 			if(checkSeparatorPosibility==0) {
 				//separateBySpace(inp, separator_output_thread);
 				int xi = 0;
-				puts("the command can be separated\n");
+				//puts("the command can be separated\n");
 				char* new_line = strtok(inp, " ");
 				
 				separated_inputs[0] = new_line;
@@ -990,16 +1014,18 @@ int initEditor(char* filename){
 					xi++;
 					separator_size++;
 				}
-			} else {
+			} else if(checkSeparatorPosibility!=99) {
 				//separator_output_thread = getFirstWordBySeparator(inp);
 				//separator_output_thread = getFirstWordBySeparator(inp, separator_output_thread);
 				//separator_size = 1;
 				//printf("%s", separator_output_thread[0]);
-				puts("the command can't be separated\n");
+				//puts("the command can't be separated\n");
 				char* new_line = strtok(inp, " ");
 				separated_inputs[0] = new_line;
 				separator_size = 1;
 				//puts(new_line);
+			} else {
+				continue;
 			}
 			//printf("wrote something");
 			uint8_t inputStatus = commandInput(open_file_state, separated_inputs[0], separated_inputs, separator_size);//why separated_inputs[0] on the second position: it is easier to keep something, that doesn't take something new. I could place "commandInput(open_file_state, separated_inputs)", but then I would replace `strcmp(input, "ins")` with `strcmp(args[0], "ins")` everywhere. At the moment it is easier to keep something like this, but in the future I'm gonna replace this stuff anyway, cuz I have many ideas for this stuff

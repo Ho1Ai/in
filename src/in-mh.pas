@@ -7,7 +7,7 @@ begin
 	writeln('in order to close, write -1');
 	writeln('in order to switch between pages, use numbers between 1 and 11 (use 0 to show this page)');
 	writeln('it is just a small guide. Somewhere you can find some changes in commands outputs, but I did not change main idea');
-	
+	writeln('since 01050b.t (or 01041b.4p.t if somewhere mentioned) some commands can get arguments from first input. So now you can write "out -1 -1" instead of "out <enter> -1 <enter> -1". You can also write using old way (may be marked as "legacy"), but some aspects in commands input have been reworked');
 	pages_content[0]:='content ({list position}. page - command):'+#10#13+'1. q - 1'+#10#13+'2. h - 2'+#10#13+'3. c - 3'+#10#13+'4. w - 4'+#10#13+'5. rm - 5'+#10#13+'6. rma - 6'+#10#13+'7. out - 7'+#10#13+'8. ins - 8'+#13#10+'9. draw - 9'+#13#10+'10. afl - 10'+#13#10+'11. afln - 11'+#13#10+'12. rml - 12'+#13#10+'13. rmln - 13'+#13#10+'14. cfn - 14'+#13#10+'15. mktab - 15';
 	pages_content[1]:='q <=> quit'+#13#10+'Does not require any arguments. Can only quit in text editor'+#13#10#10+'{e.g.:}'+#10+'> q'+#10+'Bye!';
 	pages_content[2]:='h <=> help'+#13#10+'Does not require any arguments. Can only show help message.'+#10+'Also there is "mh" command, but it does not do anything. It only says, that there is also an application, called in-mh';
