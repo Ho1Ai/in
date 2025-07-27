@@ -904,7 +904,7 @@ uint8_t commandInput(fileState* workspace_file, char* input, char** full_args_li
 		}
 		state = 1;
 	} 
-
+	/*
 	if(strcmp(input, "SEPARATOR") == 0) {
 		//separateBySpace(input);
 		//printf("Separator success!\n%s - %s - %s\n");
@@ -912,6 +912,7 @@ uint8_t commandInput(fileState* workspace_file, char* input, char** full_args_li
 
 		state = 1;
 	}
+	*/
 
 	if(strcmp(input, "mktab") == 0) {
 		char* todo;
