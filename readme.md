@@ -21,3 +21,6 @@ P.S.: instead of next steps you can start install.sh (install in) and install-mh
 3. Use next command: `sudo cp ./in /usr/local/bin/`. This command will copy in text editor to `/usr/local/bin/`, so you don't need to use `./in <filename>` instead of `in <filename>`
 4. (*optional*) You can also copy `in-mh`. Then use next command: `sudo cp ./in-mh /usr/local/bin/`. It is needed to get more info about command (mh means more help, so it is the reason why it is called like that).
 
+## Some info about these strange files (like 'asdf' or smth like this)
+I was testing some stuff in these files, so now they stood just for tests, no more. I am too lazy to delete 'em or something, so I write this stuff here
+
