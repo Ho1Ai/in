@@ -944,9 +944,17 @@ uint8_t commandInput(fileState* workspace_file, char* input, char** full_args_li
 
 
 void init__ONSTART__filename_write(fileState* workspace_file, char* filename){
-	workspace_file->filename = malloc(sizeof(filename)+1);
-	strcpy(workspace_file->filename, filename);
-	workspace_file->filename[strlen(filename)] = '\0'; // line end;
+	//workspace_file->filename = malloc(sizeof(filename)+1);
+	//strcpy(workspace_file->filename, filename);
+	//workspace_file->filename[strlen(filename)] = '\0'; // line end;
+	int xi = 0, new_len = 1;
+	while(xi < strlen(filename)) {
+		workspace_file->filename = realloc(workspace_file->filename, sizeof(char)*new_len);
+		workspace_file->filename[xi] = filename[xi];
+		xi++; new_len++;
+	}
+	workspace_file->filename = realloc(workspace_file->filename, sizeof(char)*new_len);
+	workspace_file->filename[xi] = '\0';
 }
 
 
@@ -962,7 +970,7 @@ int initEditor(char* filename){
 		printf("Couldn't receive filename...\n");
 		return 0;
 	}
-	printf("The editor has been started succesfully\n");
+	//printf("The editor has been started succesfully\n");
 	int file_existence = 1;
 	FILE* this_file = fopen(filename,"r");
 	if(!this_file){
@@ -977,21 +985,40 @@ int initEditor(char* filename){
 	open_file_state->len = 0;
 	//printf("%s", open_file_state->filename); // just a debug attempt
 	int filewrite_test = inInner__FILE_CONTENT_GETTER(open_file_state);
+	printf("The editor has been started succesfully\n");
 	while(1){
 		printf("> ");
 		char inp[128];
 		//printf("wrote something");
-		if(fgets(inp, 128, stdin)==NULL){
+		char* input_test = malloc(sizeof(char));
+
+		char al;
+		int nl = 1;
+		int pos_set = 0;
+		while((al = getchar())!=EOF && al != '\n') {
+			input_test = realloc(input_test, sizeof(char)*nl);
+			input_test[pos_set] = al;
+			nl++; pos_set++;
+		}
+
+			input_test = realloc(input_test, nl*sizeof(char));
+		input_test[pos_set] = '\0';
+
+		//free(inputTest);
+		//if(fgets(inp, 128, stdin)==NULL){
+		if(al == EOF) {
 			printf("^D\n");
+			//printf("^D\n");
 			freeMem(open_file_state);
 			free(open_file_state);
+			free(input_test);
 			if(file_existence == 1) {
 				fclose(this_file); // yeah, if there is no file, so what will it close? Absolutely nothing. Segfault was caused by this stuff
 			}
 			return 0;
 		}else{
 			inp[strcspn(inp,"\n")]=0; // firstly it was somewhere else... I know, that this stuff is the only stuff is needed for separator, but... I forgot about it, lmao
-			int checkSeparatorPosibility = separatableBySpace(inp);
+			int checkSeparatorPosibility = separatableBySpace(/*inp*/input_test);
 			//printf("separation posibility check status: %d\n",checkSeparatorPosibility);
 			//char** separator_output_thread = malloc(sizeof(char*));
 			int separator_size=0; //same to args count (argc)
@@ -1001,7 +1028,7 @@ int initEditor(char* filename){
 				//separateBySpace(inp, separator_output_thread);
 				int xi = 0;
 				//puts("the command can be separated\n");
-				char* new_line = strtok(inp, " ");
+				char* new_line = strtok(/*inp*/input_test, " ");
 				
 				separated_inputs[0] = new_line;
 				length_increaser++;
@@ -1021,7 +1048,7 @@ int initEditor(char* filename){
 				//separator_size = 1;
 				//printf("%s", separator_output_thread[0]);
 				//puts("the command can't be separated\n");
-				char* new_line = strtok(inp, " ");
+				char* new_line = strtok(/*inp*/input_test, " ");
 				separated_inputs[0] = new_line;
 				separator_size = 1;
 				//puts(new_line);
@@ -1031,6 +1058,7 @@ int initEditor(char* filename){
 			//printf("wrote something");
 			uint8_t inputStatus = commandInput(open_file_state, separated_inputs[0], separated_inputs, separator_size);//why separated_inputs[0] on the second position: it is easier to keep something, that doesn't take something new. I could place "commandInput(open_file_state, separated_inputs)", but then I would replace `strcmp(input, "ins")` with `strcmp(args[0], "ins")` everywhere. At the moment it is easier to keep something like this, but in the future I'm gonna replace this stuff anyway, cuz I have many ideas for this stuff
 			//emptyInput(separator_size, separated_inputs);
+			free(input_test);
 			free(separated_inputs); // I didn't malloc for each line, so, I guess, it will be enough to place something like this stuff here.
 			if(inputStatus != 100) {
 				break;
@@ -1054,8 +1082,13 @@ int inInner__FILE_CONTENT_GETTER(fileState* workspace_file) {
 	workspace_file->len=0;
 	//printf("Great!\n");
 	int line=0, pos = 0; //int multiplier = 1;
+	int chunk_size__dim_alpha = 1;
+	int chunk_size__dim_beta = 1;
+	int chunk_position__dim_alpha = 0;
+	int chunk_position__dim_beta = 0;
 	char fileInputBuffer;
 	while((fileInputBuffer = fgetc(input_file))!=EOF){
+		//printf("");
 		if(fileInputBuffer!='\n'){
 			//printf("this one is - - - %c\n", fileInputBuffer);
 			workspace_file->flc[line] = realloc(workspace_file->flc[line], (pos+2)*sizeof(char));

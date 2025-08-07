@@ -54,7 +54,7 @@ int argToInteger(char* arg){ //in separator file, cuz it is mostly needed for se
 	while(arg[xi] && xi<strlen(arg)){
 		//printf("%d\n", atoi(&arg[xi]));
 		result*=10;
-		result+=getOneNum(arg[xi]);
+		result+=getOneNum(arg[xi]);	
 		xi++;
 	}
 
