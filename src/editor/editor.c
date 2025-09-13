@@ -5,6 +5,9 @@
 
 #include "./separator.h" // commands: separatableBySpace[type: int; arguments: char* input]; separateBySpace[type: char*; arguments: char* input]
 #include "./separator_models.h"
+#include "./line_counter.h"
+
+#define CURRENT_VERSION "01051b.4p.ty"
 
 #define TRUE 1
 #define FALSE 0
@@ -15,6 +18,7 @@
 //#define INSERT_CODE 104
 //#define REMOVE_CODE 105 //both: rma and rm
 //#define HELP_OUTPUT_CODE 106
+// most defines have been commented, because they are unused since 00005a (when main commands have been added)
 
 //how to write Hello, World in Assembly
 
@@ -40,6 +44,10 @@ typedef struct {
 void cleanScreen() {
 	system("clear");
 }
+
+void command__verc() {
+	printf("Current version: %s\n", CURRENT_VERSION);
+	}
 
 
 
@@ -706,6 +714,11 @@ uint8_t commandInput(fileState* workspace_file, char* input, char** full_args_li
 		state = 1;
 	}
 
+	if (strcmp(input, "verc") == 0) {
+		command__verc();
+		state = 1;
+		}
+
 	if (strcmp(input, "ins")==0) {
 		int line_num, startpos;
 		
@@ -1075,23 +1088,33 @@ int initEditor(char* filename){
 
 int inInner__FILE_CONTENT_GETTER(fileState* workspace_file) {
 	//printf("Nothing great\n");
+	//int lines_amount = count_lines(workspace_file->filename);
+
+	//printf("%d", lines_amount);
+
+	//workspace_file->flc = malloc(sizeof(char*)*lines_amount);
+	//workspace_file->flc[0] = malloc(1*sizeof(char));
+	workspace_file->len=0;
 	workspace_file->flc = malloc(sizeof(char*));
-	workspace_file->flc[0] = malloc(1);
 
 	FILE* input_file = fopen(workspace_file->filename, "r");
-	workspace_file->len=0;
+	
 	//printf("Great!\n");
+	
 	int line=0, pos = 0; //int multiplier = 1;
-	int chunk_size__dim_alpha = 1;
-	int chunk_size__dim_beta = 1;
-	int chunk_position__dim_alpha = 0;
-	int chunk_position__dim_beta = 0;
+	//int chunk_size__dim_alpha = 1;
+	//int chunk_size__dim_beta = 1;
+	//int chunk_position__dim_alpha = 0;
+	//int chunk_position__dim_beta = 0;
+
 	char fileInputBuffer;
+	
 	while((fileInputBuffer = fgetc(input_file))!=EOF){
+		//putchar(fileInputBuffer);
 		//printf("");
 		if(fileInputBuffer!='\n'){
 			//printf("this one is - - - %c\n", fileInputBuffer);
-			workspace_file->flc[line] = realloc(workspace_file->flc[line], (pos+2)*sizeof(char));
+			workspace_file->flc[line] = realloc(workspace_file->flc[line], (pos+1)*sizeof(char));
 			workspace_file->flc[line][pos] = fileInputBuffer;
 			//printf("reallocated (only char)!\n");
 			++pos;
@@ -1100,7 +1123,7 @@ int inInner__FILE_CONTENT_GETTER(fileState* workspace_file) {
 			workspace_file->len+=1;
 			// well, why do I reallocate only if this stuff is empty? I have got some questions: maybe, it's better to place a boolean variable, which could save data about \n existence and then check if the char is not EOF so it will just reallocate... Hard to say
 			//printf("%d", (line+1)*sizeof(char*));
-			workspace_file->flc[line]=realloc(workspace_file->flc[line], (pos+2)*sizeof(char));
+			workspace_file->flc[line]=realloc(workspace_file->flc[line], (pos+1)*sizeof(char));
 			workspace_file->flc[line][pos]='\0';//somewhere here appears one bug... Very interesting stuff, btw
 			workspace_file->flc = realloc(workspace_file->flc, (line+2)*sizeof(char*));
 			line++;
@@ -1111,6 +1134,7 @@ int inInner__FILE_CONTENT_GETTER(fileState* workspace_file) {
 		}
 		//printf("%c", fileInputBuffer);
 	}
+	
 }
 
 void freeMem (fileState* workspace_file) {
