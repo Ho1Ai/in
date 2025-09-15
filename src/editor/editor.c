@@ -1088,14 +1088,14 @@ int initEditor(char* filename){
 
 int inInner__FILE_CONTENT_GETTER(fileState* workspace_file) {
 	//printf("Nothing great\n");
-	//int lines_amount = count_lines(workspace_file->filename);
+	int lines_amount = count_lines(workspace_file->filename);
 
 	//printf("%d", lines_amount);
 
 	//workspace_file->flc = malloc(sizeof(char*)*lines_amount);
 	//workspace_file->flc[0] = malloc(1*sizeof(char));
 	workspace_file->len=0;
-	workspace_file->flc = malloc(sizeof(char*));
+	workspace_file->flc = malloc(sizeof(char*)*lines_amount);
 
 	FILE* input_file = fopen(workspace_file->filename, "r");
 	
@@ -1109,9 +1109,11 @@ int inInner__FILE_CONTENT_GETTER(fileState* workspace_file) {
 
 	char fileInputBuffer;
 	
+	workspace_file->len = lines_amount;
+
 	while((fileInputBuffer = fgetc(input_file))!=EOF){
 		//putchar(fileInputBuffer);
-		//printf("");
+		//printf("%d\n", line);
 		if(fileInputBuffer!='\n'){
 			//printf("this one is - - - %c\n", fileInputBuffer);
 			workspace_file->flc[line] = realloc(workspace_file->flc[line], (pos+1)*sizeof(char));
@@ -1120,7 +1122,7 @@ int inInner__FILE_CONTENT_GETTER(fileState* workspace_file) {
 			++pos;
 			//++multiplier;
 		} else {
-			workspace_file->len+=1;
+			/*
 			// well, why do I reallocate only if this stuff is empty? I have got some questions: maybe, it's better to place a boolean variable, which could save data about \n existence and then check if the char is not EOF so it will just reallocate... Hard to say
 			//printf("%d", (line+1)*sizeof(char*));
 			workspace_file->flc[line]=realloc(workspace_file->flc[line], (pos+1)*sizeof(char));
@@ -1128,13 +1130,29 @@ int inInner__FILE_CONTENT_GETTER(fileState* workspace_file) {
 			workspace_file->flc = realloc(workspace_file->flc, (line+2)*sizeof(char*));
 			line++;
 			//workspace_file->flc[line+1]=malloc(1);
+			*/
+			workspace_file->flc[line] = realloc(workspace_file->flc[line], sizeof(char)*(pos+1));
+			workspace_file->flc[line][pos]= '\0';
+			
+			line++;
+
 			pos = 0;
+
+			//workspace_file->len+=1;
+			//char breakLine = '\n';
+			//workspace_file->flc[line] = realloc(workspace_file->flc[line], sizeof(char)*(pos+2));
+			//workspace_file->flc[line][pos] = breakLine;
+			//pos++;
 			//multiplier = 1;
 			//printf("there is a \\n in a file\n");
 		}
 		//printf("%c", fileInputBuffer);
 	}
-	
+
+	pos++;
+
+	workspace_file-> flc[line] = realloc(workspace_file->flc[line], sizeof(char)*(pos));
+	workspace_file->flc[line][pos-1] = '\0';
 }
 
 void freeMem (fileState* workspace_file) {

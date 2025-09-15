@@ -5,7 +5,7 @@ int count_lines(char* filename) {
 	
 	char current_char;
 	
-	int result = 0;
+	int result = 1; // there is at least one line!
 
 	while((current_char = fgetc(file_thread))!=EOF) {
 		if(current_char == '\n') {
@@ -13,8 +13,8 @@ int count_lines(char* filename) {
 			}
 		}
 	
-	printf("%d\n", result);
+	//printf("%d\n", result);
 
-	fclose(file_thread);
+	//fclose(file_thread);
 	return result;
 	}
