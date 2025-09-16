@@ -7,7 +7,7 @@
 #include "./separator_models.h"
 #include "./line_counter.h"
 
-#define CURRENT_VERSION "01051b.4p.ty"
+#define CURRENT_VERSION "01060b"
 
 #define TRUE 1
 #define FALSE 0
