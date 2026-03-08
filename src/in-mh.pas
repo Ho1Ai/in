@@ -25,6 +25,7 @@ begin
 	pages_content[14]:='cfn <=> change file name'+#13#10+'Requires new file name'+#10+'Example:'+#10+'> cfn'+#10+'What file name do you wanna set:'+#10+'new_file.totmb'+#10#10+'{in case file with this file name already exist, it will ask you if you are sure you wanna set this file name. If you are sure, write "y" or "Y", else write anything else (or just press enter)}';
 	pages_content[15]:='mktab <=> make tab'+#13#10+'Adds tabs in the beggining of the line if you are trying to insert something into an empty line'+#10+'Requires only task: + (in order to increase count of tabs) or - (in order to decrease count of tabs)';
 	pages_content[16]:='verc <=> version check'+#13#10+'Shows currently running version of text editor. On versions 01051b.1p.ty-01051b.*p.ty (last ...p version for 01051b) number before p means subpatch (in other versions it means prototype number)'+#10#10+'Example:'+#10+'> verc'+#10+'Current version: 01051b.4p.ty';
+	pages_content[17]:='outpos <=> output positional'+#13#10+'Outputs symbols in line N between positions A and B. Does not support legacy commands input (so user has to use outpos <line> <start_pos> <end_pos> instead)';
 	writeln('page: ', page_number);
 	writeln(pages_content[0]);
 	writeln(#13#10#10);
