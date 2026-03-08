@@ -1,7 +1,7 @@
 CC = gcc
 
 FINAL = build/in
-SOURCE = src/main.c src/editor/editor.c src/editor/separator.c src/editor/line_counter.c
+SOURCE = src/main.c src/editor/editor.c src/editor/separator.c src/editor/line_counter.c src/editor/helpers.c
 
 CFLAGS = $(SOURCE) -o $(FINAL) # not -Wall, because I don't return some things somewhere in non-void funcs
 

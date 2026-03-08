@@ -2,10 +2,12 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <time.h>
 
 #include "./separator.h" // commands: separatableBySpace[type: int; arguments: char* input]; separateBySpace[type: char*; arguments: char* input]
 #include "./separator_models.h"
 #include "./line_counter.h"
+#include "./helpers.h"
 
 #define CURRENT_VERSION "01060b"
 
@@ -62,6 +64,60 @@ void emptyInput(int end_size, char** inp_data) {
 	//free(end_size);
 }
 
+uint8_t command__outpos(fileState* workspace_file, int line, int from, int through) {
+	uint8_t status = 0;
+
+	if (line > workspace_file->len-1) {
+		status = 1;
+		goto outpos_end;
+		}
+	
+	if (from > through) {
+		status = 2;
+		goto outpos_end;
+		}
+
+	int line_len = strlen(workspace_file->flc[line]);
+
+	if (from > line_len-1) {
+		status = 3;
+		goto outpos_end;
+		}
+	
+	if (through > line_len-1) {
+		through = line_len-1;
+		
+		}
+
+	int curr = from;
+
+	while(curr < through && curr < line_len) {
+		char c = workspace_file->flc[line][curr];
+		if (curr % 10 == 0) {
+			
+			if (curr % 50 == 0) {
+
+				if(curr % 100 == 0) {
+					printf("\033[0;31m%c\033[0m", c);
+					} else {
+					printf("\033[0;32m%c\033[0m", c);
+					}
+
+				} else {
+				printf("\033[0;33m%c\033[0m", c);
+				} 
+
+			} else {
+			printf("%c", c);
+			} // this piece of code looks like trash... I think, it would be better to write switch (curr % 100) {case 10: ... break; case 50: ... break; case 100: ... break;}... But let it be like this, lol. I'm sleepy, you know?
+		curr++;
+		}
+
+	printf("\n");
+
+outpos_end:
+	return status;
+	}
 
 
 
@@ -419,11 +475,133 @@ uint8_t command__w(fileState* workspace_file, char* possible_argument, int argum
 	} 
 
 	if (strcmp(task, "ae") == 0) {
-		printf("append tag is not ready at the moment. Try again in future versions, please\n");
+		FILE* file_out_stream = fopen(workspace_file->filename,"a");
+		char* final_file = malloc(sizeof(char));
+		
+		int pos_x = 0, pos_y = 0;
+		int appender_position = 0;
+		while(pos_y<workspace_file->len){
+			//printf("iloop1\n");
+
+			pos_x = 0;
+			int size_of_current_line = strlen(workspace_file->flc[pos_y]);
+			final_file = realloc(final_file, (strlen(final_file)+size_of_current_line+1)*sizeof(char));//+1 is for \n symbol
+			while(workspace_file->flc[pos_y][pos_x]) {
+				final_file[appender_position] = workspace_file->flc[pos_y][pos_x];
+				appender_position++;
+				pos_x++;
+			}
+			final_file[appender_position] = '\n';
+			appender_position++;
+			pos_y++;
+			//printf("%s\n", final_file);
+		}
+
+		final_file = realloc(final_file, (strlen(final_file)+1)*sizeof(char));
+		//final_file[strlen(final_file)-1]= '\0';
+
+		//printf("%s", final_file);		
+
+		char* tag_name = malloc(sizeof(char));
+		int tag_name_position = 0;
+		int tag_len = 1;
+
+		char c;
+		printf("Enter tag\n");
+		while((c = getchar()) != EOF && c != '\n') {
+			if(tag_name_position + 1 >= tag_len) {
+				tag_len += 32;
+				tag_name = realloc(tag_name, sizeof(char)*tag_len);
+				}
+			
+			tag_name[tag_name_position] = c;
+			tag_name_position++;
+			}
+
+		tag_name = realloc(tag_name, sizeof(char)*(tag_name_position+5));
+		tag_name[tag_name_position] = '\0';
+		for(int i = 1 ; i <= 4 ; ++i){ 
+			tag_name[tag_name_position+i] = '\n';
+		}
+
+		putc('[', file_out_stream);
+		fputs("UPDATE TAG: ", file_out_stream);	
+		int test_tag = fputs(tag_name, file_out_stream);
+
+		putc(']', file_out_stream);
+
+		fputs("\n\n\n", file_out_stream);
+
+		int test = fputs(final_file, file_out_stream);
+		if (test == EOF) {
+			printf("Came face to face with a problem while file writting. Couldn't overwrite file");
+		} else {
+			printf("Success!\n");
+		} // YES!!! IT WORKS!!!
+		fclose(file_out_stream);
+		free(final_file);
+		free(tag_name);
+		return 0;
+
 	}
 
 	if(strcmp(task, "aenti") == 0) {
-		printf("append with no tag input is not ready at the moment. Try again in future versions, please\n");
+		FILE* file_out_stream = fopen(workspace_file->filename,"a");
+		char* final_file = malloc(sizeof(char));
+		
+		int pos_x = 0, pos_y = 0;
+		int appender_position = 0;
+		while(pos_y<workspace_file->len){
+			//printf("iloop1\n");
+
+			pos_x = 0;
+			int size_of_current_line = strlen(workspace_file->flc[pos_y]);
+			final_file = realloc(final_file, (strlen(final_file)+size_of_current_line+1)*sizeof(char));//+1 is for \n symbol
+			while(workspace_file->flc[pos_y][pos_x]) {
+				final_file[appender_position] = workspace_file->flc[pos_y][pos_x];
+				appender_position++;
+				pos_x++;
+			}
+			final_file[appender_position] = '\n';
+			appender_position++;
+			pos_y++;
+			//printf("%s\n", final_file);
+		}
+
+		final_file = realloc(final_file, (strlen(final_file)+1)*sizeof(char));
+		//final_file[strlen(final_file)-1]= '\0';
+
+		//printf("%s", final_file);
+
+		time_t unix_time;
+		time(&unix_time);
+
+		char* buffer = malloc(sizeof(char));
+		//printf("calling itoa\n");
+		my_itoa(unix_time, &buffer);
+		//printf("did with itoa\n");
+
+		putc('[', file_out_stream);
+		fputs("UPDATE TAG: ", file_out_stream);	
+		int test_tag = fputs(buffer, file_out_stream);
+		printf("%s\n", buffer);
+
+		putc(']', file_out_stream);
+
+		fputs("\n\n\n", file_out_stream);
+
+		int test = fputs(final_file, file_out_stream);
+		if (test == EOF) {
+			printf("Came face to face with a problem while file writting. Couldn't overwrite file");
+		} else {
+			printf("Success!\n");
+		} // YES!!! IT WORKS!!!
+		fclose(file_out_stream);
+		free(final_file);
+		free(buffer);
+		return 0;
+
+
 	}
 
 	//printf("%s\n", task);
@@ -438,7 +616,7 @@ uint8_t command__w(fileState* workspace_file, char* possible_argument, int argum
 
 
 uint8_t command__h() {
-	printf("This list of commands shows small list of commands and some things, which these commands need, but doesn't show more info, than this, because else this list won't fit viewport on some machines. In order to see better help menu, write mh and visit github or start in-mh application\n\nlist:\n\nh - show this menu\nw - write file.\t{after writing this command and pressing enter} [o/ae/aenti - overwrite/append/append with no tag input]\nq - quit\ncfn - change file name.\t{after writing this command and pressing enter} [new file name]\n\nrm - remove area.\t{after writing this command and pressing enter} [line] [start position] [end position]\nrma - remove after.\t{after writing this command and pressing enter} [line] [start position]\nrml - remove line.\t{after writing this command and pressing enter} [line]\nrmln - remove lines (number of lines)\t{after writing this command and pressing enter} [line] [how many lines]\n\nins - insert.\t{after pressing enter} [line] [position]\t{after pressing enter} [line, which you wanna insert]\nafl - add fracture line.\t{after writing this command and pressing enter} [line]\nafln - add fracture lines (number of lines).\t{after writing this command and pressing enter} [line] [number of lines]\nmktab - make tab\t{after writing this command and pressing enter} [+ (increase count) or - (decrease count)]\n");
+	printf("This list of commands shows small list of commands and some things, which these commands need, but doesn't show more info, than this, because else this list won't fit viewport on some machines. In order to see better help menu, write mh and visit github or start in-mh application\n\nlist:\n\nh - show this menu\nw - write file.\t{after writing this command and pressing enter} [o/ae/aenti - overwrite/append/append with no tag input]\nq - quit\ncfn - change file name.\t{after writing this command and pressing enter} [new file name]\n\nrm - remove area.\t{after writing this command and pressing enter} [line] [start position] [end position]\nrma - remove after.\t{after writing this command and pressing enter} [line] [start position]\nrml - remove line.\t{after writing this command and pressing enter} [line]\nrmln - remove lines (number of lines)\t{after writing this command and pressing enter} [line] [how many lines]\n\nins - insert.\t{after pressing enter} [line] [position]\t{after pressing enter} [line, which you wanna insert]\nafl - add fracture line.\t{after writing this command and pressing enter} [line]\nafln - add fracture lines (number of lines).\t{after writing this command and pressing enter} [line] [number of lines]\nmktab - make tab\t{after writing this command and pressing enter} [+ (increase count) or - (decrease count)]\n\n\nout - output lines. \noutpos - output symbols from line, which stays between position A and B.\t{Legacy args input is not supported! Can be used only as outpos <line> <start_position> <end_position>}\n");
 }
 
 
@@ -809,6 +987,29 @@ uint8_t commandInput(fileState* workspace_file, char* input, char** full_args_li
 		//}
 		state = 1;
 	}
+
+	if (strcmp(input, "outpos") == 0) {
+		if (argc-1>=3) {
+			int line = argToInteger(full_args_list[1]);
+			int from = argToInteger(full_args_list[2]);
+			int through = argToInteger(full_args_list[3]);
+			uint8_t status_code = command__outpos(workspace_file, line, from, through);
+			switch(status_code){
+				case 1:
+					printf("the line number is greater than file length. File length is: %d\n", workspace_file->len);
+					break;
+				case 2:
+					printf("start position is greater than end positon. Try to execute command again\n");
+					break;
+				case 3:
+					printf("start position is greater than line length\n");
+					break;
+			}
+			} else {
+			printf("outpos command doesn't support legacy args input. Please, write `outpos <line> <start_pos> <end_pos>` instead\n");
+			}
+		state = 1;
+		}
 
 	if (strcmp(input, "c")==0) {
 		command__c();
