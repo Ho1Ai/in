@@ -578,7 +578,7 @@ uint8_t command__w(fileState* workspace_file, char* possible_argument, int argum
 
 		char* buffer = malloc(sizeof(char));
 		//printf("calling itoa\n");
-		my_itoa(unix_time, &buffer);
+		my_itoa_with_reverse(unix_time, &buffer);
 		//printf("did with itoa\n");
 
 		putc('[', file_out_stream);

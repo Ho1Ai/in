@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-int my_itoa(long long number, char** dest) {
+int my_itoa_with_reverse(long long number, char** dest) {
 	int pos = 0;
 	*dest = realloc(*dest, sizeof(char)*15);
 	//printf("added zero position");
