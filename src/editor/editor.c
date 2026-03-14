@@ -9,7 +9,7 @@
 #include "./line_counter.h"
 #include "./helpers.h"
 
-#define CURRENT_VERSION "01060b"
+#define CURRENT_VERSION "01071b"
 
 #define TRUE 1
 #define FALSE 0
@@ -1005,6 +1005,8 @@ uint8_t commandInput(fileState* workspace_file, char* input, char** full_args_li
 					printf("start position is greater than line length\n");
 					break;
 			}
+			} else if (argc>1 && argc-1<4) {
+			printf("not enough arguments. Please, use `outpos <line> <start_pos> <end_pos>`\n");
 			} else {
 			printf("outpos command doesn't support legacy args input. Please, write `outpos <line> <start_pos> <end_pos>` instead\n");
 			}
